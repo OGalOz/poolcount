@@ -1,0 +1,51 @@
+{
+    "texts":{
+        "multi_codes_usage_fp": "Texts/multi_codes_usage.txt",
+        "combine_barseq_usage_fp": "Texts/combine_barseq_usage.txt"
+    },
+    "vars": {
+        "multi_codes_start_vars": {
+            "minQuality" : 10,
+            "preseq": null,
+            "postseq": null,
+            "nPreExpected": null,
+            "nPreExpectedMin": null,
+            "nPreExpectedMax": null,
+            "debug": 0,
+            "dntag": 0,
+            "iname": null,
+            "doOff1": null,
+            "report_dict": {"warnings" : []},
+            "report_str": ""
+        },
+        "combine_barseq_start_vars": {
+            "indexes" : [], 
+            "colSums" : [] ,
+            "colSumsUsed" : [],
+            "nSamples" : 0,
+            "oneperfile" : false, 
+            "thisIndex" : null, 
+            "nUsed" : 0,
+            "nIgnore" : 0,
+            "save_ignore": false,
+            "report_dict": {"warnings" : []},
+            "report_str": ""
+        }
+
+    },
+    "sequences": {
+        "MultiCodes": {
+            "dntag_preseq": "GTCTCGTAG",
+            "dntag_postseq": "CGATGAATT",
+            "base_preseq": "CAGCGTACG",
+            "base_postseq": "AGAGACCTC"
+        }
+
+
+
+
+    }
+
+
+
+}
