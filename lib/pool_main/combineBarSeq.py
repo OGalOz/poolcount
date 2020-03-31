@@ -17,9 +17,11 @@ from functools import cmp_to_key
 
 
 def combine_barseq_imported_run(args_list):
-    info_config_fp = "info.json"
+    info_config_fp = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+            "info.json")
     with open(info_config_fp, "r") as f:
         info_dict = json.loads(f.read())
+    info_dict["current_dir"] = os.path.dirname(os.path.abspath(__file__))
     usage = get_usage_str(info_dict)
     vars_dict = info_dict["vars"]["combine_barseq_start_vars"]
     vars_dict["usage"] = usage
@@ -699,7 +701,9 @@ def write_to_colsum(indexes, colSums, colSumsUsed, out_name, vars_dict):
 
 
 def get_usage_str(info_dict):
-    usage_fp = info_dict["texts"]["combine_barseq_usage_fp"]
+
+    usage_fp = os.path.join(info_dict["current_dir"],
+            info_dict["texts"]["combine_barseq_usage_fp"])
     with open(usage_fp, "r") as f:
         usage_str = f.read()
     return usage_str

@@ -1,13 +1,23 @@
 #python3
 #This file is imported by poolcountImpl.py and checks params and poolfile to 
 #   see if they're ready for.
+import sys,os
+sys.path.append(os.path.dirname(__file__))
 from combineBarSeq import init_pool_dict
 
 
 #params is a dict, as provided by the SDK
 def parse_and_check_params(params):
 
-    parsed_params_dict = {}
+
+    """
+    fastq_files_refs_list should be a list with just refs
+        as strings ['1/2/3', '3/2/1', ...]
+    """
+    parsed_params_dict = {
+            'fastq_files_refs_list': params['fastq_refs'],
+            'output_name': params['output_name']
+            }
     
 
     return parsed_params_dict

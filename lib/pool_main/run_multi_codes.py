@@ -8,6 +8,8 @@
 import subprocess
 import gzip
 import shutil
+import sys,os
+sys.path.append(os.path.dirname(__file__))
 from MultiCodes import multi_codes_imported_run
 
 # Deciding Index:

@@ -3,7 +3,7 @@
     "authors": [
         "omreegaloz"
     ],
-    "contact": "",
+    "contact": "help@kbase.us",
     "categories": ["active"],
     "widgets": {
         "input": null,
@@ -11,14 +11,36 @@
     },
     "parameters": [ 
         {
-            "id": "parameter_1",
-            "optional": true,
+            "id": "poolfile_from_staging",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "dynamic_dropdown",
+            "dynamic_dropdown_options": {
+                "data_source": "ftp_staging"
+        }
+        },
+        {
+            "id": "fastq_files",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": true,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "valid_ws_types": ["KBaseFile.SingleEndLibrary" ]
+        }
+        },
+        {
+            "id": "output_name",
+            "optional": false,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
-                "valid_ws_types": [ ]
+                "is_output_name": true
             }
         }
     ],
@@ -35,8 +57,14 @@
                     "narrative_system_variable": "workspace_id",
                     "target_property": "workspace_id"
                 },{
-                    "input_parameter": "parameter_1",
-                    "target_property": "parameter_1"
+                    "input_parameter": "poolfile_from_staging",
+                    "target_property": "poolfile_from_staging"
+                },{
+                    "input_parameter": "fastq_files",
+                    "target_property": "fastq_files"
+                },{
+                    "input_parameter": "output_name",
+                    "target_property": "output_name"
                 }
             ],
             "output_mapping": [

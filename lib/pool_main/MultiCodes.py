@@ -18,6 +18,8 @@ def multi_codes_imported_run(multicodes_args):
 
     info_dict = load_config()
 
+    info_dict["current_dir"] = os.path.dirname(os.path.abspath(__file__))
+
     vars_dict = info_dict["vars"]["multi_codes_start_vars"] 
 
     usage = get_usage_str(info_dict)
@@ -538,7 +540,8 @@ def parse_index_file_or_iname(vars_dict):
 
 def get_usage_str(info_dict):
 
-    usage_fp = info_dict["texts"]["multi_codes_usage_fp"]
+    usage_fp = os.path.join(info_dict["current_dir"],
+            info_dict["texts"]["multi_codes_usage_fp"])
     with open(usage_fp, "r") as f:
         usage = f.read()
     return usage

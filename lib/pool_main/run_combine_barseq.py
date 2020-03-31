@@ -1,4 +1,6 @@
 #python3
+import sys,os
+sys.path.append(os.path.dirname(__file__))
 from combineBarSeq import combine_barseq_imported_run
 
 def run_combine_barseq_from_dict(cmb_bs_dict):
@@ -16,6 +18,8 @@ def run_combine_barseq_from_dict(cmb_bs_dict):
         cmb_bs_dict["pool"],
         codes_list_str
             ]
+
+    #Where combineBarseq runs
     vars_dict = combine_barseq_imported_run(combine_barseq_args)
 
     cmb_bs_out = {

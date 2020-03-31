@@ -63,5 +63,20 @@ class poolcountTest(unittest.TestCase):
         #
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
-        ret = self.serviceImpl.run_poolcount(self.ctx, {'workspace_name': self.wsName,
-                                                             'parameter_1': 'Hello World!'})
+       
+        main_output_name = "testing_op"
+
+        fastq_ref_1 = '39774/2/1' 
+        fastq_ref_2 = '39774/4/1' 
+
+        fastq_refs = [fastq_ref_1, fastq_ref_2]
+
+
+        ret = self.serviceImpl.run_poolcount(self.ctx, 
+                {
+
+                'workspace_name': self.wsName,
+                "fastq_refs": fastq_refs,
+                "output_name": main_output_name
+
+                    })
