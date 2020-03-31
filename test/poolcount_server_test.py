@@ -65,6 +65,8 @@ class poolcountTest(unittest.TestCase):
         # self.assertEqual(ret[...], ...) or other unittest methods
        
         main_output_name = "testing_op"
+    
+        poolfile = "?"
 
         fastq_ref_1 = '39774/2/1' 
         fastq_ref_2 = '39774/4/1' 
@@ -76,6 +78,7 @@ class poolcountTest(unittest.TestCase):
                 {
 
                 'workspace_name': self.wsName,
+                "poolfile_from_staging": poolfile,
                 "fastq_refs": fastq_refs,
                 "output_name": main_output_name
 
