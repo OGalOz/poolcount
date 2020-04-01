@@ -70,7 +70,10 @@ class poolcount:
         dfu = DataFileUtil(self.callback_url) 
 
         #Download pool file from staging area:
-        DownloadStagingFileOutput = dfu.download_staging_file()
+        stg_file_params = {
+                'staging_file_subdir_path': parsed_params_dict['poolfile']
+                }
+        DownloadStagingFileOutput = dfu.download_staging_file(stg_file_params)
         poolfile_copy_path = DownloadStagingFileOutput['copy_file_path']
         logging.info(poolfile_copy_path)
 

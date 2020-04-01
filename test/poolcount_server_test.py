@@ -66,7 +66,7 @@ class poolcountTest(unittest.TestCase):
        
         main_output_name = "testing_op"
     
-        poolfile = "?"
+        poolfile = "feba_148_pool.n10"
 
         fastq_ref_1 = '39774/2/1' 
         fastq_ref_2 = '39774/4/1' 
