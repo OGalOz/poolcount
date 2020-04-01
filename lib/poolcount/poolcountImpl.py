@@ -57,8 +57,6 @@ class poolcount:
         # ctx is the context object
         # return variables are: output
 
-        logging.warning(params)
-
         #BEGIN run_poolcount
         report = KBaseReport(self.callback_url)
 
@@ -70,6 +68,12 @@ class poolcount:
         parsed_params_dict = parse_and_check_params(params)
 
         dfu = DataFileUtil(self.callback_url) 
+
+        #Download pool file from staging area:
+        DownloadStagingFileOutput = dfu.download_staging_file()
+        poolfile_copy_path = DownloadStagingFileOutput['copy_file_path']
+        logging.info(poolfile_copy_path)
+
 
         fastq_dicts_list = download_fastq_and_prepare_mc(parsed_params_dict, 
                 dfu, self.shared_folder, outputs_dir)

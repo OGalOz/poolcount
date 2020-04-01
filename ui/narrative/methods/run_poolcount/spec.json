@@ -61,7 +61,7 @@
                     "target_property": "poolfile_from_staging"
                 },{
                     "input_parameter": "fastq_files",
-                    "target_property": "fastq_files"
+                    "target_property": "fastq_refs"
                 },{
                     "input_parameter": "output_name",
                     "target_property": "output_name"
