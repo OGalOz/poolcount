@@ -156,7 +156,7 @@ class poolcount:
             'pack': 'zip'})['shock_id']
         dir_link_dict = {
             'shock_id': dir_zip_shock_id,
-            'name': parsed_params_dict['output_name'],
+            'name': parsed_params_dict['output_name'] + ".zip",
             'label': 'RbTnSeqPoolCount_dir',
             'description': 'The folder containing outputs from this app'
                 }
