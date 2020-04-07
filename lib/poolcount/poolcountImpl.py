@@ -9,6 +9,7 @@ from pool_main.parse_and_test_params import parse_and_check_params
 from pool_main.downloader import download_fastq_and_prepare_mc
 from pool_main.run_multi_codes import run_multi_codes_from_dict
 from pool_main.run_combine_barseq import run_combine_barseq_from_dict
+from pool_main.pool_util import clean_output_dir
 #END_HEADER
 
 
@@ -69,17 +70,25 @@ class poolcount:
 
         dfu = DataFileUtil(self.callback_url) 
 
-        #Download pool file using dfu:
+        # Download pool file using dfu:
         GetObjectsParams = {
                 'object_refs': [parsed_params_dict['poolfile_ref']]
                 }
+        # We get the handle id
         PoolFileObjectData = dfu.get_objects(GetObjectsParams)['data'][0]['data']
         logging.info(PoolFileObjectData)
-        poolfile_handle = PoolFileObjectData['hid']
-        pool_file_path = os.path.join(self.shared_folder, 
+        poolfile_handle = PoolFileObjectData['poolfile']
+        # We set the download path:
+        poolfile_path = os.path.join(self.shared_folder, 
                 "kb_poolcount_pool.n10")
+        ShockToFileParams = {
+                "handle_id": poolfile_handle,
+                "file_path": poolfile_path,
+                "unpack": "uncompress"
+                }
+        ShockToFileOutput = dfu.shock_to_file(ShockToFileParams)
+        logging.info(ShockToFileOutput)
 
-        logging.info(poolfile_copy_path)
 
 
         fastq_dicts_list = download_fastq_and_prepare_mc(parsed_params_dict, 
@@ -122,7 +131,7 @@ class poolcount:
         cmbarseq_out_prefix = os.path.join(outputs_dir, 
                 parsed_params_dict['output_name'])
         #combine barseq dict: 
-        cmb_bs_dict = {"pool": pool_file_path, 
+        cmb_bs_dict = {"pool": poolfile_path, 
                 "codes_filepaths_list": codes_fp_list,
                 "main_out_prefix": cmbarseq_out_prefix }
         logging.info("Running Combine Bar Seq")
@@ -133,8 +142,8 @@ class poolcount:
         report_str += "---Combine BarSeq Warnings---\n{}".format(
                     "\n".join(cmb_bs_out["cbs_report_dict"]["warnings"]))
 
-        poolcount_fp = cmb_bs_out["poolcount"]
-        colsum_fp = cmb_bs_out["colsum"]
+        #Cleaning outputs dir (removing .codes, .close, .counts files)
+        clean_output_dir(outputs_dir, self.shared_folder)
 
 
         #Writing report string:

@@ -65,20 +65,18 @@ class poolcountTest(unittest.TestCase):
         # self.assertEqual(ret[...], ...) or other unittest methods
        
         main_output_name = "testing_op"
-    
-        poolfile = "feba_148_pool.n10"
+        pool_ref = "48870/3/1"
 
-        fastq_ref_1 = '39774/2/1' 
-        fastq_ref_2 = '39774/4/1' 
+        fastq_ref_1 = '48870/5/1' 
 
-        fastq_refs = [fastq_ref_1, fastq_ref_2]
+        fastq_refs = [fastq_ref_1]
 
 
         ret = self.serviceImpl.run_poolcount(self.ctx, 
                 {
 
                 'workspace_name': self.wsName,
-                "poolfile_from_staging": poolfile,
+                "poolfile_ref": pool_ref,
                 "fastq_refs": fastq_refs,
                 "output_name": main_output_name
 
