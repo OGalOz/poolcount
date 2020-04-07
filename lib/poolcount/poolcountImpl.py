@@ -69,23 +69,28 @@ class poolcount:
 
         dfu = DataFileUtil(self.callback_url) 
 
-        #Download pool file from staging area:
-        stg_file_params = {
-                'staging_file_subdir_path': parsed_params_dict['poolfile']
+        #Download pool file using dfu:
+        GetObjectsParams = {
+                'object_refs': [parsed_params_dict['poolfile_ref']]
                 }
-        DownloadStagingFileOutput = dfu.download_staging_file(stg_file_params)
-        poolfile_copy_path = DownloadStagingFileOutput['copy_file_path']
+        PoolFileObjectData = dfu.get_objects(GetObjectsParams)['data'][0]['data']
+        logging.info(PoolFileObjectData)
+        poolfile_handle = PoolFileObjectData['hid']
+        pool_file_path = os.path.join(self.shared_folder, 
+                "kb_poolcount_pool.n10")
+
         logging.info(poolfile_copy_path)
 
 
         fastq_dicts_list = download_fastq_and_prepare_mc(parsed_params_dict, 
                 dfu, self.shared_folder, outputs_dir)
 
+
         logging.info(fastq_dicts_list)
 
         #First we download all the Fastq Files and the Pool File
         my_mod_dir = '/kb/module/lib/pool_main'
-        pool_file_path = os.path.join(my_mod_dir, "feba_148_pool.n10")
+        #pool_file_path = os.path.join(my_mod_dir, "feba_148_pool.n10")
 
         
         """

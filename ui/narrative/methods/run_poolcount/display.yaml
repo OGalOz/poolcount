@@ -24,13 +24,14 @@ suggestions:
 # Configure the display and description of parameters
 #
 parameters :
-    poolfile_from_staging :
+    poolfile_ref :
         ui-name : |
-            Pool File (TSV)
+            Pool File
         short-hint : |
-            The pool file related to these reads 
+            The pool file related to these reads KBaseRBTnSeq.PoolTSV 
         long-hint  : |
             The pool file related to these reads may be the output from the MapTnSeq app.
+            File type is KBaseRBTnSeq.PoolTSV
     fastq_files :
         ui-name : |
             Fastq file (.fastq)

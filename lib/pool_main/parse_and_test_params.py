@@ -17,7 +17,7 @@ def parse_and_check_params(params):
         as strings ['1/2/3', '3/2/1', ...]
     """
     parsed_params_dict = {
-            "poolfile": params["poolfile_from_staging"],
+            "poolfile_ref": params["poolfile_ref"],
             'fastq_files_refs_list': params['fastq_refs'],
             'output_name': params['output_name']
             }

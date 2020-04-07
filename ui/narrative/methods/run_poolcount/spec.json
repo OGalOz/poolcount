@@ -11,15 +11,15 @@
     },
     "parameters": [ 
         {
-            "id": "poolfile_from_staging",
+            "id": "poolfile_ref",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
-            "field_type": "dynamic_dropdown",
-            "dynamic_dropdown_options": {
-                "data_source": "ftp_staging"
-        }
+            "field_type": "text",
+            "text_options": {
+                "valid_ws_types": ["KBasePoolTSV.PoolFile"]
+            }
         },
         {
             "id": "fastq_files",
@@ -57,8 +57,8 @@
                     "narrative_system_variable": "workspace_id",
                     "target_property": "workspace_id"
                 },{
-                    "input_parameter": "poolfile_from_staging",
-                    "target_property": "poolfile_from_staging"
+                    "input_parameter": "poolfile_ref",
+                    "target_property": "poolfile_ref"
                 },{
                     "input_parameter": "fastq_files",
                     "target_property": "fastq_refs"
