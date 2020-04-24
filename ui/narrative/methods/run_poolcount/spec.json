@@ -33,6 +33,49 @@
         }
         },
         {
+            "id": "genome_ref",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "valid_ws_types": ["KBaseGenomes.Genome"]
+            }
+        },
+        {
+        "id": "KB_PoolCount_Bool",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["yes"],
+            "field_type" : "dropdown",
+            "dropdown_options":{
+                "options": [{
+                    "value": "no",
+                    "display": "No"
+                },
+                {
+                    "value": "yes",
+                    "display": "Yes"
+                }
+                ]
+                   }
+        },
+                {
+            "id": "poolcount_description",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "textarea",
+            "textarea_options" : {
+                "n_rows" : 3
+
+            }
+        },
+
+        {
             "id": "output_name",
             "optional": false,
             "advanced": false,
@@ -63,8 +106,20 @@
 
                 },{
                     "input_parameter": "fastq_files",
-                    "target_property": "fastq_refs"
+                    "target_property": "fastq_files",
+                    "target_type_transform": "resolved-ref"
                 },{
+                    "input_parameter": "genome_ref",
+                    "target_property": "genome_ref",
+                    "target_type_transform": "resolved-ref"
+                },{
+                    "input_parameter": "KB_PoolCount_Bool",
+                    "target_property": "KB_PoolCount_Bool"
+                },{
+                    "input_parameter": "poolcount_description",
+                    "target_property": "poolcount_description"
+                },
+                {
                     "input_parameter": "output_name",
                     "target_property": "output_name"
                 }

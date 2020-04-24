@@ -48,6 +48,33 @@ def convert_fastq_filename(original_fastq_fn):
     return ".".join(original_fastq_fn.split(".")[:2])
 
 
+# Gets poolfile path
+def download_poolfile(poolfile_ref, poolfile_path, dfu):
+
+    GetObjectsParams = {
+            'object_refs': [poolfile_ref]
+            }
+
+    # We get the handle id
+    PoolFileObjectData = dfu.get_objects(GetObjectsParams)['data'][0]['data']
+    logging.info("DFU Pool File Get objects results:")
+    logging.info(PoolFileObjectData)
+
+    poolfile_handle = PoolFileObjectData['poolfile']
+
+    # Set params for shock to file
+    ShockToFileParams = {
+            "handle_id": poolfile_handle,
+            "file_path": poolfile_path,
+            "unpack": "uncompress"
+            }
+    ShockToFileOutput = dfu.shock_to_file(ShockToFileParams)
+    logging.info(ShockToFileOutput)
+    # Poolfile is at location "poolfile_path"
+
+    return poolfile_path
+
+
 #Input is a list of fastq fps strings
 #outputs dir str (not in use)
 def convert_fastq_fp_list_to_add_index(new_fastq_fps, outputs_dir):

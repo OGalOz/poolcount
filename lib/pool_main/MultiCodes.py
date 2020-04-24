@@ -260,8 +260,8 @@ def write_to_out_counts(vars_dict):
     vars_dict["report_dict"]["out_counts_info"] = {
             "out_counts_fp": out_counts_fp
             }
-    report_str = "Wrote # barcodes seen a certain # of times to {}\n".format(
-            out_counts_fp)
+    report_str = "Wrote the number of barcodes seen a certain number of times" \
+                  +  " to {}\n".format(out_counts_fp)
     if 1 in vars_dict['nPerCount']:
         report_str += "nOnce = {}\n".format(vars_dict['nPerCount'][1])
         vars_dict["report_dict"]["out_counts_info"]["nOnce"] = vars_dict[

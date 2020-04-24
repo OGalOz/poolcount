@@ -4,7 +4,7 @@
 name: RBTnSeq Reads to Pool Counts 
 
 tooltip: |
-    Given FastQ Reads and a pool file get a Poolcount file
+    Supply FastQ Reads and a pool file and receive a Poolcount file
 
 screenshots: []
 
@@ -39,6 +39,27 @@ parameters :
             One of the reads files relating to the pool file
         long-hint : |
             Normally a result from Illumina- reads from the project return in fastq format.
+    genome_ref :
+        ui-name : |
+            Related Genome
+        short-hint : |
+            The Genome related to this work
+        long-hint: |
+            The poolfile comes from a genome and fastq reads. Use the same genome in this.
+    KB_PoolCount_Bool :
+        ui-name : |
+            Create KBase PoolCount? 
+        short-hint : |
+            If yes, we create a poolcount object to be used downstream in KBase.
+        long-hint : |
+            Decide whether you want to create a KBase PoolCount Object. Defaults to Yes. 
+    poolcount_description :
+        ui-name : |
+            Description 
+        short-hint : |
+            Give a brief description of the poolcount file.
+        long-hint : |
+            This description is saved along with the KBase PoolCount object.
     output_name :
         ui-name : |
             Output Name

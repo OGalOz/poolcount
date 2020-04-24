@@ -5,11 +5,13 @@ import os, shutil
 
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.DataFileUtilClient import DataFileUtil
+from installed_clients.WorkspaceClient import Workspace
 from pool_main.parse_and_test_params import parse_and_check_params
-from pool_main.downloader import download_fastq_and_prepare_mc
+from pool_main.downloader import download_fastq_and_prepare_mc, download_poolfile
 from pool_main.run_multi_codes import run_multi_codes_from_dict
 from pool_main.run_combine_barseq import run_combine_barseq_from_dict
 from pool_main.pool_util import clean_output_dir
+from pool_main.upload_poolcount import upload_poolcount_to_KBase
 #END_HEADER
 
 
@@ -41,6 +43,7 @@ class poolcount:
         #BEGIN_CONSTRUCTOR
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = config['scratch']
+        self.ws_url = config['workspace-url']
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -61,35 +64,25 @@ class poolcount:
         #BEGIN run_poolcount
         report = KBaseReport(self.callback_url)
 
+        myToken = os.environ.get('KB_AUTH_TOKEN', None)
+        ws = Workspace(self.ws_url, token=myToken)
+        ws_id = ws.get_workspace_info({'workspace': params['workspace_name']})[0]
+
         #We make an output directory in scratch:
         outputs_dir = os.path.join(self.shared_folder, "PoolCount_Outputs")
         os.mkdir(outputs_dir)
 
-
         parsed_params_dict = parse_and_check_params(params)
 
-        dfu = DataFileUtil(self.callback_url) 
+        dfu = DataFileUtil(self.callback_url)
 
-        # Download pool file using dfu:
-        GetObjectsParams = {
-                'object_refs': [parsed_params_dict['poolfile_ref']]
-                }
-        # We get the handle id
-        PoolFileObjectData = dfu.get_objects(GetObjectsParams)['data'][0]['data']
-        logging.info(PoolFileObjectData)
-        poolfile_handle = PoolFileObjectData['poolfile']
-        # We set the download path:
-        poolfile_path = os.path.join(self.shared_folder, 
-                "kb_poolcount_pool.n10")
-        ShockToFileParams = {
-                "handle_id": poolfile_handle,
-                "file_path": poolfile_path,
-                "unpack": "uncompress"
-                }
-        ShockToFileOutput = dfu.shock_to_file(ShockToFileParams)
-        logging.info(ShockToFileOutput)
+        poolcount_fp = '/kb/module/lib/poolcount/app_dev_test.poolcount'
 
+        # We set the poolfile's path
+        poolfile_path = os.path.join(self.shared_folder, "kb_pool.pool")
 
+        poolfile_path = download_poolfile(
+                parsed_params_dict['poolfile_ref'], poolfile_path, dfu)
 
         fastq_dicts_list = download_fastq_and_prepare_mc(parsed_params_dict, 
                 dfu, self.shared_folder, outputs_dir)
@@ -115,6 +108,7 @@ class poolcount:
         mc_run_num = len(mc_run_list)
         logging.info("Total MultiCodes Runs: {}".format(mc_run_num))
 
+        # Running MultiCodes
         codes_fp_list = []
         for i in range(mc_run_num):
             mc_run_dict = mc_run_list[i]
@@ -122,12 +116,14 @@ class poolcount:
             logging.info("Completed {}/{} Multi Codes Runs".format(
             i+1, mc_run_num))
             report_dict["multi_codes_" + str(i+1)] = mc_out_dict["mc_report_dict"]
-            report_str += "---Multi Codes {} Report----\n{}".format(i+1,mc_out_dict[
+            report_str += "\n---Multi Codes {} Report----\n\n{}".format(i+1,mc_out_dict[
                 "mc_report_str"])
-            report_str += "---Multi Codes {} Warnings---\n{}".format(i+1,
+            report_str += "\n---Multi Codes {} Warnings---\n\n{}".format(i+1,
                     "\n".join(mc_out_dict["mc_report_dict"]["warnings"]))
             codes_fp_list.append(mc_out_dict['codes_file'])
 
+
+        # Running Combine BarSeq
         cmbarseq_out_prefix = os.path.join(outputs_dir, 
                 parsed_params_dict['output_name'])
         #combine barseq dict: 
@@ -137,10 +133,36 @@ class poolcount:
         logging.info("Running Combine Bar Seq")
         cmb_bs_out = run_combine_barseq_from_dict(cmb_bs_dict)
         report_dict["combine_bar_seq_report_dict"] = cmb_bs_out["cbs_report_dict"] 
-        report_str += "---Combine BarSeq Report ---\n{}".format(cmb_bs_out[
+
+        # We have the poolcount filepath here:
+        poolcount_fp = cmb_bs_out['poolcount']
+
+        logging.info("WROTE POOLCOUNT FILE TO " + poolcount_fp)
+        report_str += "\n---Combine BarSeq Report ---\n\n{}".format(cmb_bs_out[
             "cbs_report_str"])
-        report_str += "---Combine BarSeq Warnings---\n{}".format(
+        report_str += "\n---Combine BarSeq Warnings---\n\n{}".format(
                     "\n".join(cmb_bs_out["cbs_report_dict"]["warnings"]))
+
+
+        # Now we upload the poolcount file to KBase to make a PoolCount Object
+        if parsed_params_dict['KB_PoolCount_Bool']:
+            upload_params = {
+                    'genome_ref': parsed_params_dict['genome_ref'],
+                    'poolcount_description': parsed_params_dict[
+                        'poolcount_description'] ,
+                    'run_method': 'poolcount',
+                    'workspace_id': ws_id,
+                    'ws_obj': ws,
+                    'poolcount_fp': poolcount_fp,
+                    'poolcount_name': "app_dev_test.poolcount",
+                    'dfu': dfu,
+                    "scratch_dir": self.shared_folder
+                    }
+            logging.info("UPLOADING PoolCount FILE to KBASE through DFU")
+            upload_poolfile_results = upload_poolcount_to_KBase(upload_params)
+            logging.info("Upload PoolCount File Results:")
+            logging.info(upload_poolfile_results)
+
 
         #Cleaning outputs dir (removing .codes, .close, .counts files)
         clean_output_dir(outputs_dir, self.shared_folder)
