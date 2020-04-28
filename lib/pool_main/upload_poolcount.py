@@ -9,17 +9,17 @@ import os
 def upload_poolcount_to_KBase(up):
     '''
     upload params (up) must include the following keys:
-    {
-    genome_ref,
-    poolcount_description,
-    run_method,
-    workspace_id,
-    ws_obj,
-    poolcount_fp,
-    poolcount_name,
-    dfu,
-    scratch_dir
-       }
+    
+        genome_ref (str),
+        poolcount_description (str),
+        run_method (str),
+        workspace_id (str),
+        ws_obj (obj),
+        poolcount_fp (str),
+        poolcount_name (str),
+        dfu (obj),
+        scratch_dir (str)
+        set_name (str)
     '''
     
     # We check if the poolcount file is in scratch as it should be
@@ -29,7 +29,7 @@ def upload_poolcount_to_KBase(up):
             up['poolcount_name'])
 
     # We check correctness of poolcount file
-    column_header_list = check_poolcount_file(up['poolcount_fp'])
+    column_header_list, num_lines = check_poolcount_file(up['poolcount_fp'])
 
 
     # We create the KBase handle for the object:
@@ -51,6 +51,8 @@ def upload_poolcount_to_KBase(up):
         "column_header_list": column_header_list,
         "file_name": res_handle["file_name"],
         "run_method": up["run_method"],
+        "set_name": up['set_name'], 
+        "num_lines": str(num_lines),
         "related_genome_ref": up["genome_ref"],
         "related_organism_scientific_name": get_genome_organism_name(
             up["genome_ref"],
@@ -93,7 +95,10 @@ def check_poolcount_file(poolcount_fp):
     exp_f = "barcode rcbarcode scaffold strand pos".split(" ") 
 
     with open(poolcount_fp, "r") as f:
-        header_line = f.readline()
+        f_str = f.read()
+    f_list = f_str.split('\n')
+    num_lines = len(f_list)
+    header_line = f_list[0]
 
 
     if header_line == '':
@@ -109,7 +114,7 @@ def check_poolcount_file(poolcount_fp):
                         "Expected {} but field is {}".format(exp_f[i], fields[i])
                     )
 
-    return fields 
+    return [fields, num_lines]
     
 def check_poolcount_in_scratch(scratch_dir, poolcount_fp, poolcount_name):
     # We make sure the poolcount file is in the scratch dir

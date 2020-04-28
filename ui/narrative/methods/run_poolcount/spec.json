@@ -85,6 +85,13 @@
             "text_options": {
                 "is_output_name": true
             }
+        },
+        {
+            "id": "test_local_bool",
+            "optional": false,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ false ]
         }
     ],
     "behavior": {

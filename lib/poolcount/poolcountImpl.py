@@ -12,6 +12,7 @@ from pool_main.run_multi_codes import run_multi_codes_from_dict
 from pool_main.run_combine_barseq import run_combine_barseq_from_dict
 from pool_main.pool_util import clean_output_dir
 from pool_main.upload_poolcount import upload_poolcount_to_KBase
+from pool_main.upload_exps import upload_expsfile_to_KBase
 #END_HEADER
 
 
@@ -66,17 +67,24 @@ class poolcount:
 
         myToken = os.environ.get('KB_AUTH_TOKEN', None)
         ws = Workspace(self.ws_url, token=myToken)
-        ws_id = ws.get_workspace_info({'workspace': params['workspace_name']})[0]
+
+        if params['test_local_bool']:
+            ws_id = "49371"
+        else:
+            ws_id = ws.get_workspace_info({'workspace': params['workspace_name']})[0]
+
+        #Creating Data File Util Object
+        dfu = DataFileUtil(self.callback_url)
+
 
         #We make an output directory in scratch:
         outputs_dir = os.path.join(self.shared_folder, "PoolCount_Outputs")
         os.mkdir(outputs_dir)
 
+
+        # parsed_params_dict contains keys: 
         parsed_params_dict = parse_and_check_params(params)
 
-        dfu = DataFileUtil(self.callback_url)
-
-        poolcount_fp = '/kb/module/lib/poolcount/app_dev_test.poolcount'
 
         # We set the poolfile's path
         poolfile_path = os.path.join(self.shared_folder, "kb_pool.pool")
@@ -134,8 +142,9 @@ class poolcount:
         cmb_bs_out = run_combine_barseq_from_dict(cmb_bs_dict)
         report_dict["combine_bar_seq_report_dict"] = cmb_bs_out["cbs_report_dict"] 
 
-        # We have the poolcount filepath here:
+        # We have the poolcount filepath here: based on output string
         poolcount_fp = cmb_bs_out['poolcount']
+        poolcount_fn = os.path.basename(poolcount_fp)
 
         logging.info("WROTE POOLCOUNT FILE TO " + poolcount_fp)
         report_str += "\n---Combine BarSeq Report ---\n\n{}".format(cmb_bs_out[
@@ -154,9 +163,10 @@ class poolcount:
                     'workspace_id': ws_id,
                     'ws_obj': ws,
                     'poolcount_fp': poolcount_fp,
-                    'poolcount_name': "app_dev_test.poolcount",
+                    'poolcount_name': poolcount_fn,
                     'dfu': dfu,
-                    "scratch_dir": self.shared_folder
+                    "scratch_dir": self.shared_folder,
+                    "set_name": parsed_params_dict['output_name']
                     }
             logging.info("UPLOADING PoolCount FILE to KBASE through DFU")
             upload_poolfile_results = upload_poolcount_to_KBase(upload_params)

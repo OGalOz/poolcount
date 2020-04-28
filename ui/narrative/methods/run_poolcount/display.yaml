@@ -62,11 +62,19 @@ parameters :
             This description is saved along with the KBase PoolCount object.
     output_name :
         ui-name : |
-            Output Name
+            Output Set Name
         short-hint : |
-            Your output name for the files. 
+            Your output name for the set (.poolcount) file
         long-hint : |
-            No requirements besides no special characters or spaces.
+            This name must match the set name on your experiments file.
+            No requirements besides no special characters or spaces. 
+    test_local_bool :
+        ui-name : |
+            Developer testing
+        short-hint : |
+            Don't change this
+        long-hint : |
+            Always should be false
 description : |
     <p>App still under work. Part of RBTnSeq Analysis involving conversion of </p>
     <p>Fastq reads and pool file into poolcounts file. </p>

@@ -62,6 +62,9 @@ def check_pool_file(pool_fp):
 
 # op_name string, (output_name)
 def check_output_name(op_name):
+    if ' ' in op_name:
+        raise Exception("Output Set Name Cannot Contain Spaces: {}".format(
+                                                                    op_name))
     op_name = op_name.replace(' ', '_')
     rgx = re.search(r'[^\w]', op_name)
     if rgx:

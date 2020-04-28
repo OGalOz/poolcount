@@ -64,7 +64,7 @@ class poolcountTest(unittest.TestCase):
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
        
-        main_output_name = "testing_op"
+        set_output_name = "SB2B_ML5_set1"
         pool_ref = "49371/9/1"
 
         genome_ref = "49371/5/1"
@@ -72,6 +72,8 @@ class poolcountTest(unittest.TestCase):
         fastq_ref_1 = '48870/5/1' 
 
         fastq_refs = [fastq_ref_1]
+
+        test_local_bool = True
 
 
         ret = self.serviceImpl.run_poolcount(self.ctx, 
@@ -82,5 +84,6 @@ class poolcountTest(unittest.TestCase):
                 "genome_ref": genome_ref, 
                 "KB_PoolCount_Bool": "yes",
                 "poolcount_description": "Testing",
-                "output_name": main_output_name
+                "output_name": set_output_name,
+                "test_local_bool": test_local
                     })
