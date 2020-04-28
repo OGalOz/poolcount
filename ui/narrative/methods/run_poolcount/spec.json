@@ -91,7 +91,14 @@
             "optional": false,
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ false ]
+            "default_values": [ false ],
+            "field_type" : "dropdown",
+            "dropdown_options":{
+                "options": [{
+                    "value": false,
+                    "display": "False"
+                }]}
+
         }
     ],
     "behavior": {
@@ -129,6 +136,10 @@
                 {
                     "input_parameter": "output_name",
                     "target_property": "output_name"
+                },
+                {
+                    "input_parameter": "test_local_bool",
+                    "target_property": "test_local_bool"
                 }
             ],
             "output_mapping": [

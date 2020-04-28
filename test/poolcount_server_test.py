@@ -85,5 +85,5 @@ class poolcountTest(unittest.TestCase):
                 "KB_PoolCount_Bool": "yes",
                 "poolcount_description": "Testing",
                 "output_name": set_output_name,
-                "test_local_bool": test_local
+                "test_local_bool": test_local_bool
                     })
