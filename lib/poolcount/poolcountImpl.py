@@ -83,14 +83,19 @@ class poolcount:
 
 
         # parsed_params_dict contains keys: 
+        # poolfile_ref, fastq_files_refs_list, genome_ref, output_name,
+        # KB_PoolCount_Bool, poolcount_description
         parsed_params_dict = parse_and_check_params(params)
+        # We get the username for later
+        parsed_params_dict['username'] = ctx['user_id']
 
 
         # We set the poolfile's path
         poolfile_path = os.path.join(self.shared_folder, "kb_pool.pool")
 
         poolfile_path = download_poolfile(
-                parsed_params_dict['poolfile_ref'], poolfile_path, dfu)
+                parsed_params_dict['poolfile_ref'], poolfile_path, dfu, ctx)
+
 
         fastq_dicts_list = download_fastq_and_prepare_mc(parsed_params_dict, 
                 dfu, self.shared_folder, outputs_dir)
@@ -156,10 +161,11 @@ class poolcount:
         # Now we upload the poolcount file to KBase to make a PoolCount Object
         if parsed_params_dict['KB_PoolCount_Bool']:
             upload_params = {
+                    'username': parsed_params_dict['username'],
+                    'fastq_refs': parsed_params_dict['fastq_files_refs_list'],
                     'genome_ref': parsed_params_dict['genome_ref'],
                     'poolcount_description': parsed_params_dict[
                         'poolcount_description'] ,
-                    'run_method': 'poolcount',
                     'workspace_id': ws_id,
                     'ws_obj': ws,
                     'poolcount_fp': poolcount_fp,

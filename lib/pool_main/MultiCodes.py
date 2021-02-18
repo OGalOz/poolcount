@@ -15,6 +15,13 @@ import copy
 #multicodes_args is a list, written as actual arguments besides the first index,
 #   which is normally the name of this file.
 def multi_codes_imported_run(multicodes_args):
+    """
+    The overall idea of this part of the program is to count for each barcode,
+    how many times did it show up in each input FASTQ file.
+    Suppose there are 96 input FASTQ files - so for each discovered
+    barcode we have a list, for each FASTQ file (96) of how many
+    times it showed up.
+    """
 
     info_dict = load_config()
 
@@ -23,6 +30,7 @@ def multi_codes_imported_run(multicodes_args):
     vars_dict = info_dict["vars"]["multi_codes_start_vars"] 
 
     usage = get_usage_str(info_dict)
+
     vars_dict["usage"] = usage
 
     #Parsing input arguments here:
@@ -45,36 +53,7 @@ def multi_codes_imported_run(multicodes_args):
     return vars_dict
 
 
-def main_run():
-    #NOT RUN IN KBASE - ONLY STAND ALONE
-    logging.basicConfig(level=logging.DEBUG)
 
-    info_dict = load_config()
-
-
-    vars_dict = info_dict["vars"]["multi_codes_start_vars"] 
-
-    usage = get_usage_str(info_dict)
-    vars_dict["usage"] = usage
-
-    #Parsing input arguments here:
-    vars_dict = init_options(vars_dict, None)     
-   
-    
-    vars_dict = test_and_update_options(vars_dict, info_dict) #n25 or bs3 here.
-    vars_dict = get_nPreExpectedMinMax(vars_dict)
-    vars_dict = get_index_two_len(vars_dict)
-    vars_dict = parse_index_file_or_iname(vars_dict) 
-            
-    vars_dict = parse_fastq_input(vars_dict) 
-    vars_dict = print_report(vars_dict)
-    vars_dict = write_to_out_codes_and_get_nPerCount(vars_dict)
-    vars_dict = write_to_out_counts(vars_dict)
-    vars_dict = off_by_one_cases_and_write_to_out_close(vars_dict)
-    vars_dict = estimate_diversity(vars_dict)
-    vars_dict = estimate_bias(vars_dict)
-
-    return 0
 
 
 def load_config():
@@ -275,6 +254,11 @@ def write_to_out_counts(vars_dict):
 
 
 def write_to_out_codes_and_get_nPerCount(vars_dict):
+    """
+    This is where we write to the important output files
+    '.codes' which contain barcodes and related counts 
+    in each FASTQ file.
+    """
     #Will add this to vars_dict later
     nPerCount = {} # number of codes with that count
     header_list = ["barcode"] + vars_dict['prefixNames']
@@ -393,7 +377,8 @@ def parse_fastq_input(vars_dict):
 
     fastq_lines = fastq_str.split('\n')
 
-
+    # Since fastq files repeat meaning every 4 lines, we take every 4th index
+    # and run program based on line meanings mod 4.
     for j in range(int(math.floor((len(fastq_lines)/4)))):
         i = j*4
         vars_dict['nReads'] += 1
@@ -417,7 +402,7 @@ def parse_fastq_input(vars_dict):
             continue # No prefixes found, skip this iteration of loop.
         vars_dict['nMulti'] += 1
 
-        #In most cases, iname is None, so iPrefix is 0, so we get nLeading = 0 
+        #In most cases, iname is None, so iPrefix is 0 -> we get nLeading = 0 
         nLeading, indexseq, prefixName = vars_dict['prefix'][vars_dict['iPrefix']]
         offset = nLeading + len(indexseq) #offset will likely be 0
         barcode, off = find_barcode(seq, quality, offset, vars_dict) 
@@ -450,7 +435,7 @@ def parse_fastq_input(vars_dict):
 
 
 #barcode str, iPrefix int
-#All this to substitute the creative properties of Perl
+#Substitutes the creative properties of Perl
 def update_codes_iprefix(codes_dict, barcode, iPrefix, vars_dict):
 
     if barcode in codes_dict:
@@ -548,14 +533,16 @@ def get_usage_str(info_dict):
 
 
 def init_options(vars_dict, args_list):
-
-
+    """
+    Only inputs from KBASE are out, fastq_fp, index
+    
+    """
 
     #Necessary args: -out, -fastq_fp, -index/ -primers 
     parser = argparse.ArgumentParser(description=vars_dict['usage'])
 
     parser.add_argument("-primers", type=str) # goes to indexfile - this xor 
-    # -index, not both
+    #   -index, not both
     parser.add_argument("-out", type=str)
     parser.add_argument("-index", type=str) # goes to iname. This xor -primers.
     # index could be: 
@@ -988,3 +975,40 @@ def test_find_barcode():
     "vars_dict": base_vars_dict_1
     }
             ]
+
+
+
+
+
+"""
+def main_run():
+    #NOT RUN IN KBASE - ONLY STAND ALONE
+    logging.basicConfig(level=logging.DEBUG)
+
+    info_dict = load_config()
+
+
+    vars_dict = info_dict["vars"]["multi_codes_start_vars"] 
+
+    usage = get_usage_str(info_dict)
+    vars_dict["usage"] = usage
+
+    #Parsing input arguments here:
+    vars_dict = init_options(vars_dict, None)     
+   
+    
+    vars_dict = test_and_update_options(vars_dict, info_dict) #n25 or bs3 here.
+    vars_dict = get_nPreExpectedMinMax(vars_dict)
+    vars_dict = get_index_two_len(vars_dict)
+    vars_dict = parse_index_file_or_iname(vars_dict) 
+            
+    vars_dict = parse_fastq_input(vars_dict) 
+    vars_dict = print_report(vars_dict)
+    vars_dict = write_to_out_codes_and_get_nPerCount(vars_dict)
+    vars_dict = write_to_out_counts(vars_dict)
+    vars_dict = off_by_one_cases_and_write_to_out_close(vars_dict)
+    vars_dict = estimate_diversity(vars_dict)
+    vars_dict = estimate_bias(vars_dict)
+
+    return 0
+"""

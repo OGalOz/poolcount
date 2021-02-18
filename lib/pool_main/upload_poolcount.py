@@ -5,14 +5,16 @@ import logging
 import re
 import shutil
 import os
+import datetime
 
 def upload_poolcount_to_KBase(up):
     '''
     upload params (up) must include the following keys:
-    
+   
+        username (str),
         genome_ref (str),
+        fastq_refs (list),
         poolcount_description (str),
-        run_method (str),
         workspace_id (str),
         ws_obj (obj),
         poolcount_fp (str),
@@ -39,6 +41,13 @@ def upload_poolcount_to_KBase(up):
     # The following var res_handle only created for simplification of code
     res_handle = file_to_shock_result["handle"]
 
+
+    # We create an updated description (prefix) with username and time
+    date_time = datetime.datetime.utcnow()
+    updated_description = "Created by {} on {}\n".format(up['username'],
+            str(date_time))
+
+
     # We create the data for the object
     pool_data = {
         "file_type": "KBasePoolTSV.PoolCount",
@@ -50,7 +59,7 @@ def upload_poolcount_to_KBase(up):
         "compression_type": "gzip",
         "column_header_list": column_header_list,
         "file_name": res_handle["file_name"],
-        "run_method": up["run_method"],
+        "utc_created": str(date_time),
         "set_name": up['set_name'], 
         "num_lines": str(num_lines),
         "related_genome_ref": up["genome_ref"],
@@ -58,7 +67,7 @@ def upload_poolcount_to_KBase(up):
             up["genome_ref"],
             up['ws_obj']
         ),
-        "description": up["poolcount_description"],
+        "description": updated_description + up["poolcount_description"],
     }
 
     # To get workspace id:

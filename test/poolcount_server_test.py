@@ -64,14 +64,17 @@ class poolcountTest(unittest.TestCase):
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
        
-        set_output_name = "SB2B_ML5_set1"
-        pool_ref = "49371/9/1"
+        pool_ref = "58816/36/1"
 
-        genome_ref = "49371/5/1"
 
-        fastq_ref_1 = '48870/5/1' 
+        set_output_name = "Burk376_Test1"
 
-        fastq_refs = [fastq_ref_1]
+        genome_ref = "58816/34/1"
+
+        fastq_ref_1 = '58816/39/1' 
+        fastq_ref_2 = '58816/37/1'
+
+        fastq_refs = [fastq_ref_1, fastq_ref_2]
 
         test_local_bool = True
 

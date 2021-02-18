@@ -3,7 +3,7 @@
 #File used to download
 #We use DataFileUtil: 
 # https://github.com/kbaseapps/DataFileUtil/blob/master/DataFileUtil.spec
-import sys,os,logging,re
+import sys, os, logging, re
 
 #parsed_params_dict is a variable dict - must have keys in func
 # dfu is data file util object
@@ -22,7 +22,8 @@ def download_fastq_and_prepare_mc(parsed_params_dict, dfu, scratch_dir,
     #The following gets us the shock i
     get_objects_results = dfu.get_objects(dfu_dict)
     file_data_list = get_objects_results['data']
-    #file_data is a dict
+
+    # each file_data in file_data_list is a dict
     for i in range(len(file_data_list)):
         file_data = file_data_list[i]
         logging.info("filedata")
@@ -49,11 +50,11 @@ def convert_fastq_filename(original_fastq_fn):
 
 
 # Gets poolfile path
-def download_poolfile(poolfile_ref, poolfile_path, dfu):
+def download_poolfile(poolfile_ref, poolfile_path, dfu, ctx=None):
 
     GetObjectsParams = {
             'object_refs': [poolfile_ref]
-            }
+    }
 
     # We get the handle id
     PoolFileObjectData = dfu.get_objects(GetObjectsParams)['data'][0]['data']
@@ -116,7 +117,7 @@ def get_index_val(fq_fp, outputs_dir ):
             "index": index,
             "out_fp_prefix": os.path.join(outputs_dir, out_fp_prefix),
             "debug": False
-            }
+    }
 
     return fq_fp_dict
     

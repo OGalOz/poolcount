@@ -1,6 +1,6 @@
 #python3
 #This file is imported by poolcountImpl.py and checks params and poolfile to 
-#   see if they're ready for.
+#   see if they're ready for run.
 import sys,os,logging
 import re
 sys.path.append(os.path.dirname(__file__))
@@ -35,7 +35,7 @@ def parse_and_check_params(params):
             'output_name': check_output_name(params['output_name']),
             "KB_PoolCount_Bool": kb_pc_bool,
             "poolcount_description": params["poolcount_description"]
-            }
+    }
     
 
     return parsed_params_dict
@@ -59,6 +59,7 @@ def check_pool_file(pool_fp):
         raise Exception
 
     return 0
+
 
 # op_name string, (output_name)
 def check_output_name(op_name):

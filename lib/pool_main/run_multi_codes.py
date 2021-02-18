@@ -38,6 +38,16 @@ def unzip_fastq(zipped_fastq_fp, fastq_dest_path):
 
 
 def run_multi_codes_from_dict(mult_cod_cfg_dict):
+    """
+    multi codes config dict must contain following keys:
+
+    out_fp_prefix,
+    fastq_fp,
+    index,
+
+    Optional keys:
+    debug
+    """
     out_prefix = mult_cod_cfg_dict['out_fp_prefix']
     commands = [
             '-out',

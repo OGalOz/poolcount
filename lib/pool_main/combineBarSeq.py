@@ -1,9 +1,19 @@
 #python3
+# First MultiCodes.py, then combineBarSeq.py
 # This program is a translation of Morgan Price's combineBarSeq.pl to 
 #   python. Important inputs to this program are the pool_file and the 
 #   codesfiles. Outputs are poolcount and colsum
-# The oneperfile code is not clean
-# "perl will fill in data structures whenever possible"
+# The oneperfile code is not clean (?)
+#
+# The program takes all the codes files and combines them into 
+#   a single massive codes files with the following information:
+#   barcode, rcbarcode, scaffold, strand, pos, and then a count for each 
+#   index file (FASTQ grouping of data). This is called the poolcount file.
+#
+#   The colsum file is essentially a quality report to see if everything
+#   went ok.
+#
+#
 
 import os
 import sys
@@ -66,45 +76,6 @@ def combine_barseq_imported_run(args_list):
 
 
 
-def main_run():
-    logging.basicConfig(level=logging.INFO)
-    info_config_fp = "info.json"
-    with open(info_config_fp, "r") as f:
-        info_dict = json.loads(f.read())
-    usage = get_usage_str(info_dict)
-    vars_dict = info_dict["vars"]["combine_barseq_start_vars"]
-    vars_dict["usage"] = usage
-    vars_dict = init_options(vars_dict, None)
-
-    pool = init_pool_dict(vars_dict)
-
-    counts = {} # rcbarcode to vector of counts
-
-    for code_fp in vars_dict['codesFiles']:
-        vars_dict = process_codefile(code_fp, vars_dict, pool, counts)
-
-    report_str = """Pool {} entries {}.\n
-            Saw {} lines.\n Ignored {} lines from {} files.\n""".format(
-                vars_dict['poolfile'], len(pool.keys()),
-                vars_dict['nUsed'], vars_dict['nIgnore'], 
-                len(vars_dict['codesFiles']) )
-    vars_dict["report_str"] += report_str
-    logging.info(report_str)
-
-    #if save ignore write to out.codes.ignored
-
-    vars_dict = categorize_reads(vars_dict)
-
-
-    vars_dict = write_to_poolcount(pool, counts, vars_dict['nSamples'], 
-            vars_dict['out_name'], vars_dict['indexes'],
-            vars_dict)
-
-    vars_dict = write_to_colsum(vars_dict['indexes'], vars_dict['colSums'], 
-            vars_dict['colSumsUsed'], vars_dict['out_name'],
-            vars_dict)
-
-
 
 #pool is a dict
 def init_pool_dict(vars_dict):
@@ -122,6 +93,11 @@ def init_pool_dict(vars_dict):
     return pool
 
 def init_options(vars_dict, args_list):
+    """
+    We take the argument list and parse it.
+    We essentially need the output file name, the list of codes
+        files from MultiCodes, and the pool file.
+    """
     parser = argparse.ArgumentParser(description=vars_dict['usage'])
     out_help = "the name of the output - need not be a full file name"
     parser.add_argument("out_file_name", help=out_help)
@@ -162,7 +138,7 @@ Vars in use:
 """
 def categorize_reads(vars_dict):
     lowcountI = [] #indexes with < 200,000 reads
-    lowcounts = [] # those actual counts
+    lowcounts = [] # the related number of reads per index ^
     fractions = [] # fraction used for indexes with plenty of reads only
     fractionsS = [] #fraction used for succesful indexes (enough reads & f > 0.25)
     lowhitI = [] #indexes with fraction < 0.25
@@ -494,7 +470,7 @@ def short_list(inp_arr, vars_dict):
     else:
         prefix = my_match[0]
         prelen = len(prefix)
-        numbers = [ short_check[x] for x in my_list]
+        numbers = [short_check(x, prefix, prelen) for x in my_list]
         lastno = None
         inrun = 0
         sofar = ""
@@ -638,19 +614,29 @@ def mergeSort(arr,l,r):
         mergeSort(arr, m+1, r) 
         merge(arr, l, m, r) 
 
-"""
-Vars in use:
-    pool (dict)
-    counts (dict)
-    nSamples (int)
-"""
+
+
 def write_to_poolcount(pool, counts, nSamples, out_name, indexes, vars_dict):
+    """
+    * This function writes the computed data to the main output file to be used
+        in the future - the poolcount file - which is essentially a long list
+        of barcodes (and their reverse complement), their location (scaffold,
+        strand, position), and then a count per FASTQ file of how many times
+        it was seen.
+    Args:
+        pool (dict)
+        counts (dict) rcbarcode -> list of counts per index in order of indexes
+        nSamples (int)
+        out_name: (str)?
+        indexes: list<str> where each str is a name of an "index" (i.e. FASTQ file
+            that represents a set of reads)
+    """
 
     #First line of poolcount file: barcode, etc. tab separated.
     poolcount_str = "\t".join(["barcode","rcbarcode", "scaffold", "strand", 
         "pos", "\t".join(indexes)]) + "\n"
 
-    sorted_keys = special_sorted_pool_keys(pool) #MUST TEST SORTING
+    sorted_keys = special_sorted_pool_keys(pool) 
     
     for rcbarcode in sorted_keys:
 
@@ -686,6 +672,11 @@ def write_to_poolcount(pool, counts, nSamples, out_name, indexes, vars_dict):
  
 
 def write_to_colsum(indexes, colSums, colSumsUsed, out_name, vars_dict):
+    """
+    Args:
+        colSums: Array with loc of index containing value of number of Reads
+            in that index.
+    """
     colsum_str = "\t".join(["Index", "nReads", "nUsed", "fraction"]) + "\n"
     for i in range(len(indexes)):
         colsum_str += "\t".join([str(indexes[i]),str(colSums[i]),
@@ -721,3 +712,50 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+def main_run():
+    raise Exception("Not in Use in Kbase app")
+    """
+    logging.basicConfig(level=logging.INFO)
+    info_config_fp = "info.json"
+    with open(info_config_fp, "r") as f:
+        info_dict = json.loads(f.read())
+    usage = get_usage_str(info_dict)
+    vars_dict = info_dict["vars"]["combine_barseq_start_vars"]
+    vars_dict["usage"] = usage
+    vars_dict = init_options(vars_dict, None)
+
+    pool = init_pool_dict(vars_dict)
+
+    counts = {} # rcbarcode to vector of counts
+
+    for code_fp in vars_dict['codesFiles']:
+        vars_dict = process_codefile(code_fp, vars_dict, pool, counts)
+    """
+    """
+    vars_dict = {}; pool = {}
+    report_str = ""Pool {} entries {}.\n
+            Saw {} lines.\n Ignored {} lines from {} files.\n"".format(
+                vars_dict['poolfile'], len(pool.keys()),
+                vars_dict['nUsed'], vars_dict['nIgnore'], 
+                len(vars_dict['codesFiles']) )
+    vars_dict["report_str"] += report_str
+    logging.info(report_str)
+    """
+
+
+    #if save ignore write to out.codes.ignored
+    """
+    vars_dict = categorize_reads(vars_dict)
+
+
+    vars_dict = write_to_poolcount(pool, counts, vars_dict['nSamples'], 
+            vars_dict['out_name'], vars_dict['indexes'],
+            vars_dict)
+
+    vars_dict = write_to_colsum(vars_dict['indexes'], vars_dict['colSums'], 
+            vars_dict['colSumsUsed'], vars_dict['out_name'],
+            vars_dict)
+    """
