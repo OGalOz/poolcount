@@ -900,7 +900,7 @@ def ParseFastqInput(inp_d):
             if nWrongPrePos >= 200 and nWrongPrePos >= (0.1 * nReads):
                 raise Exception("Over 10% of reads have the wrong spacing ( \
                         not {}:{}) to the pre-sequence ({} \
-                        of {} so far).\n Perhaps you forgot to specify the \
+                        of {} so far).\n Perhaps you chose the wrong \
                         protocol (i.e., -n25 or -bs3)?\n".format(
                             inp_d["nPreExpectedMin"],
                             inp_d["nPreExpectedMax"],
