@@ -82,6 +82,7 @@ class poolcount:
         """
         # ctx is the context object
         # return variables are: output
+        logging.basicConfig(level=logging.DEBUG)
         logging.warning("INPUT PARAMS:")
         logging.warning(params)
 

@@ -21,7 +21,7 @@ def parse_and_check_params(params):
             "test_local_bool": test_local_bool
             ['workspace_name']: self.wsName,
             "save_ignore_bool": bool,
-            "max_Reads": int or None,
+            "max_Reads": int or -1 or None,
             "minQuality": int,
             "debug": bool,
             "protocol_type": str,
@@ -54,7 +54,8 @@ def parse_and_check_params(params):
     parsed_params_dict = {x:params[x] for x in params.keys()}
     # Updating certain keys
     parsed_params_dict["KB_PoolCount_Bool"] =  kb_pc_bool
-    parsed_params_dict["max_Reads"] = params["max_Reads"] if params["max_Reads"] in [-1, "-1"] else None
+    parsed_params_dict["max_Reads"] = params["max_Reads"] if params["max_Reads"] not in [-1, "-1"] else None
+
 
     return parsed_params_dict
 
