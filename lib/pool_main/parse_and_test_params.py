@@ -36,6 +36,10 @@ def parse_and_check_params(params):
             "minQuality", "debug", "protocol_type", "doOff1"]:
         if p not in params:
             raise Exception(p + " not found in params")
+        elif params[p] in ["true", "True"]:
+            params[p] = True
+        elif params[p] in ["false", "False"]:
+            params[p] = False
 
     for ref in [params['poolfile_ref'], params['genome_ref']] + params['fastq_files']:
         if len(ref.split('/')) != 3:
@@ -55,6 +59,10 @@ def parse_and_check_params(params):
     # Updating certain keys
     parsed_params_dict["KB_PoolCount_Bool"] =  kb_pc_bool
     parsed_params_dict["max_Reads"] = params["max_Reads"] if params["max_Reads"] not in [-1, "-1"] else None
+    for x in ["preseq", "postseq"]:
+        if x in parsed_params_dict:
+            if parsed_params_dict[x] == "None":
+                parsed_params_dict[x] = None
 
 
     return parsed_params_dict
