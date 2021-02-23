@@ -48,10 +48,13 @@ def parse_and_check_params(params):
         logging.info("Will not create KBase pool object due to user param.")
         kb_pc_bool = False 
 
+
+
     # Duplicating params dict
     parsed_params_dict = {x:params[x] for x in params.keys()}
     # Updating certain keys
     parsed_params_dict["KB_PoolCount_Bool"] =  kb_pc_bool
+    parsed_params_dict["max_Reads"] = params["max_Reads"] if params["max_Reads"] in [-1, "-1"] else None
 
     return parsed_params_dict
 

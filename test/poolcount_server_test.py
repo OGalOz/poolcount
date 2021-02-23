@@ -82,7 +82,7 @@ class poolcountTest(unittest.TestCase):
         save_ignore_bool = True
 
         # added
-        max_Reads = None
+        max_Reads = -1 
 
         # added
         minQuality = 0

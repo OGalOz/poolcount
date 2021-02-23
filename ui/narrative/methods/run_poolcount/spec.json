@@ -126,7 +126,7 @@
             "optional": false,
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ "" ],
+            "default_values": [ "None" ],
             "field_type": "textarea",
             "textarea_options" : {
                 "n_rows" : 1
@@ -138,7 +138,7 @@
             "optional": false,
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ "" ],
+            "default_values": [ "None" ],
             "field_type": "textarea",
             "textarea_options" : {
                 "n_rows" : 1
@@ -229,7 +229,7 @@
             },
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ "" ],
+            "default_values": [ "-1" ],
             "field_type": "text"
         },{
         "id": "minQuality",
