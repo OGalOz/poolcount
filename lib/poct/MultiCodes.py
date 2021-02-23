@@ -571,7 +571,7 @@ def GetProtocolVariables(inp_d):
         nPreExpectedMin = inp_d['nPreExpectedMin']
         nPreExpectedMax = inp_d['nPreExpectedMax']
     else:
-        raise Exception("Could not recognize protocol type: " + pc)
+        raise Exception("Could not recognize protocol type: [" + pc + "]")
 
     #Updates
     inp_d['preseq'] = preseq

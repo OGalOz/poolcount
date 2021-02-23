@@ -90,7 +90,7 @@ class poolcountTest(unittest.TestCase):
         debug = False
 
         # 'custom' (requires preseq/postseq) or 'dntag' (requires index_file)
-        # or 'base' or 'bs3' or 'n25' or 'Unknown'
+        # or 'base' or 'bs3' or 'n25' 
         protocol_type = "n25"
         # Below only if protocol_type == 'custom'
         preseq = None
