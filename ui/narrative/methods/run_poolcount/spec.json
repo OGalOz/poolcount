@@ -302,8 +302,8 @@
                     "target_property": "debug"
                 },
                 {
-                    "input_parameter": "maxReads",
-                    "target_property": "maxReads"
+                    "input_parameter": "max_Reads",
+                    "target_property": "max_Reads"
                 },
                 {
                     "input_parameter": "output_name",

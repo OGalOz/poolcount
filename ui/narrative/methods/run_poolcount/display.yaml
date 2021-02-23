@@ -67,7 +67,7 @@ parameters :
           What is the indexing protocol you are using? BarSeq3?
         long-hint : |
           This method defines how the program looks for barcodes.
-    maxReads :
+    max_Reads :
         ui-name : |
           Max Reads
         short-hint : |
