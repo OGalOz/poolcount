@@ -1,0 +1,17 @@
+{
+    "out_prefix": "tmp/Test1/new",
+    "maxReads": 2100000, 
+    "index_name": "PlaceHolder",
+    "minQuality": 10, 
+    "debug": false,
+    "protocol_type": "bs3",
+    "bs3_fp": "/usr2/people/omreeg/RBTNSEQ_PROG/PoolCount/DATA/barseq3.index2",
+    "doOff1": true, 
+    "MC_seqs": {
+            "dnt_pre": "GTCTCGTAG",
+            "dnt_post": "CGATGAATT",
+            "bs_pre": "CAGCGTACG",
+            "bs_post": "AGAGACCTC"
+    },
+    "fastq_fp": "PlaceHolder"
+}

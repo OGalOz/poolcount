@@ -3,7 +3,7 @@
 #File used to download
 #We use DataFileUtil: 
 # https://github.com/kbaseapps/DataFileUtil/blob/master/DataFileUtil.spec
-import sys, os, logging, re
+import sys,os,logging,re
 
 #parsed_params_dict is a variable dict - must have keys in func
 # dfu is data file util object
@@ -17,7 +17,6 @@ def download_fastq_and_prepare_mc(parsed_params_dict, dfu, scratch_dir,
             fastq_files: list<ref>
                     ref: str 'A/B/C'
     """
-
     new_fastq_fps = []
 
     fastq_file_refs = parsed_params_dict['fastq_files']
@@ -28,8 +27,7 @@ def download_fastq_and_prepare_mc(parsed_params_dict, dfu, scratch_dir,
     #The following gets us the shock i
     get_objects_results = dfu.get_objects(dfu_dict)
     file_data_list = get_objects_results['data']
-
-    # each file_data in file_data_list is a dict
+    #file_data is a dict
     for i in range(len(file_data_list)):
         file_data = file_data_list[i]
         logging.info("filedata")
@@ -56,11 +54,11 @@ def convert_fastq_filename(original_fastq_fn):
 
 
 # Gets poolfile path
-def download_poolfile(poolfile_ref, poolfile_path, dfu, ctx=None):
+def download_poolfile(poolfile_ref, poolfile_path, dfu):
 
     GetObjectsParams = {
             'object_refs': [poolfile_ref]
-    }
+            }
 
     # We get the handle id
     PoolFileObjectData = dfu.get_objects(GetObjectsParams)['data'][0]['data']
@@ -79,7 +77,7 @@ def download_poolfile(poolfile_ref, poolfile_path, dfu, ctx=None):
     logging.info(ShockToFileOutput)
     # Poolfile is at location "poolfile_path"
 
-    return poolfile_path
+    return None 
 
 
 #Input is a list of fastq fps strings
@@ -96,6 +94,17 @@ def convert_fastq_fp_list_to_add_index(new_fastq_fps, outputs_dir):
 
 
 def get_index_val(fq_fp, outputs_dir ):
+    """
+
+    Output needs to look like:
+        fq_ind_d: (d) FASTQ INDEX DICT
+            fq_fp: (str) Fastq file path
+            [index_name] OR (str)
+            [indexfile_fp] (str) FOR NOW ONLY index_name
+            debug:
+
+            Last 3 keys not in use
+    """
 
     fn = fq_fp.split('/')[-1]
     out_fp_prefix = fn.split('.')[0]
@@ -118,11 +127,12 @@ def get_index_val(fq_fp, outputs_dir ):
 
 
     fq_fp_dict = {
-            "fastq_fp": fq_fp,
+            "fq_fp": fq_fp,
+            "index_name": index,
+            "debug": False,
             "index_type": index_type,
-            "index": index,
+            "index_val": index,
             "out_fp_prefix": os.path.join(outputs_dir, out_fp_prefix),
-            "debug": False
     }
 
     return fq_fp_dict

@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 #BEGIN_HEADER
 import logging
-import os, shutil
+import os, shutil, json
 
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.WorkspaceClient import Workspace
 from pool_main.parse_and_test_params import parse_and_check_params
-from pool_main.downloader import download_fastq_and_prepare_mc, download_poolfile
-from pool_main.run_multi_codes import run_multi_codes_from_dict
-from pool_main.run_combine_barseq import run_combine_barseq_from_dict
+from poct.downloader import download_fastq_and_prepare_mc, download_poolfile
+from poct.FullProgram import PC_RunAll  
 from pool_main.pool_util import clean_output_dir
 from pool_main.upload_poolcount import upload_poolcount_to_KBase
-from pool_main.upload_exps import upload_expsfile_to_KBase
+#from pool_main.run_multi_codes import run_multi_codes_from_dict
+#from pool_main.run_combine_barseq import run_combine_barseq_from_dict
+#from pool_main.PoolCountHTMLReport import CreateHTMLString
+#from pool_main.upload_exps import upload_expsfile_to_KBase
 #END_HEADER
 
 
@@ -56,8 +58,27 @@ class poolcount:
         This example function accepts any number of parameters and returns 
         results in a KBaseReport
         :param params: instance of mapping from String to unspecified object
+
         :returns: instance of type "ReportResults" -> structure: parameter
            "report_name" of String, parameter "report_ref" of String
+        
+        Args:
+            params:
+                "poolfile_ref": pool_ref (str),
+                "fastq_files": list<fastq_refs (str)>,
+                "genome_ref": genome_ref (str), 
+                "KB_PoolCount_Bool": "yes"/"no" - create a poolcount file?
+                "poolcount_description": (str) A text description of the pool file,
+                "output_name": (str),
+                "test_local_bool": test_local_bool
+                ['workspace_name']: self.wsName,
+                "save_ignore_bool": bool,
+                "max_Reads": int or None,
+                "minQuality": int,
+                "debug": bool,
+                "protocol_type": str,
+                "doOff1": bool 
+
         """
         # ctx is the context object
         # return variables are: output
@@ -67,19 +88,25 @@ class poolcount:
 
         myToken = os.environ.get('KB_AUTH_TOKEN', None)
         ws = Workspace(self.ws_url, token=myToken)
+        
 
-        if params['test_local_bool']:
-            ws_id = "49371"
-        else:
-            ws_id = ws.get_workspace_info({'workspace': params['workspace_name']})[0]
+        ws_id = ws.get_workspace_info({
+                        'workspace': params['workspace_name']})[0]
 
         #Creating Data File Util Object
         dfu = DataFileUtil(self.callback_url)
 
-
-        #We make an output directory in scratch:
+        #We make the PoolCount output directory in scratch:
         outputs_dir = os.path.join(self.shared_folder, "PoolCount_Outputs")
-        os.mkdir(outputs_dir)
+        HTML_dir = os.path.join(self.shared_folder, "HTML_OP")
+        MC_dir = os.path.join(self.shared_folder, "MultiCodesTmp")
+        for x_dir in [outputs_dir, HTML_dir, MC_dir]:
+            if os.path.isdir(x_dir):
+                logging.info(f"{x_dir} contents: " + ",\n".join(
+                              os.listdir(x_dir)))
+            else:
+                os.mkdir(x_dir)
+        main_HTML_fp = os.path.join(HTML_dir, "index.html")
 
 
         # parsed_params_dict contains keys: 
@@ -93,8 +120,14 @@ class poolcount:
         # We set the poolfile's path
         poolfile_path = os.path.join(self.shared_folder, "kb_pool.pool")
 
-        poolfile_path = download_poolfile(
-                parsed_params_dict['poolfile_ref'], poolfile_path, dfu, ctx)
+        download_poolfile(
+            parsed_params_dict['poolfile_ref'], poolfile_path, dfu)
+        
+        poolcount_prefix = os.path.join(outputs_dir,
+                                        parsed_params_dict["output_name"]
+                                        )
+
+
 
 
         fastq_dicts_list = download_fastq_and_prepare_mc(parsed_params_dict, 
@@ -104,15 +137,6 @@ class poolcount:
         logging.info(fastq_dicts_list)
 
         #First we download all the Fastq Files and the Pool File
-        my_mod_dir = '/kb/module/lib/pool_main'
-        #pool_file_path = os.path.join(my_mod_dir, "feba_148_pool.n10")
-
-        
-        """
-        multi_codes_config_fp = os.path.join(my_mod_dir, "sample_run_dict.json")
-        with open(multi_codes_config_fp, "r") as f:
-            mc_total_info = json.loads(f.read())
-        """
 
         report_dict = {} 
         report_str = ""
@@ -121,6 +145,70 @@ class poolcount:
         mc_run_num = len(mc_run_list)
         logging.info("Total MultiCodes Runs: {}".format(mc_run_num))
 
+        """
+
+        MC_config_d: (d) MultiCodes config json file path. MC_cgf_d must contain:
+            out_prefix: str,
+            maxReads: int or None, 
+            index_name: str,
+            minQuality: int, 
+            debug: bool,
+            protocol_type: str,
+            bs3_fp: File path to barseq3.index2 file
+            doOff1: bool, 
+            MC_seqs:
+                    dnt_pre: GTCTCGTAG,
+                    dnt_post: CGATGAATT,
+                    bs_pre: CAGCGTACG,
+                    bs_post: AGAGACCTC
+            fastq_fp: str 
+        fq_index_list: (l) list<fq_ind_d> where
+            fq_ind_d: (d) FASTQ INDEX DICT
+                fq_fp: (str) Fastq file path
+                index: (str)
+                [index_name] OR (str)
+                [indexfile_fp] (str)
+                debug:
+        CBS_config_d: (d) CombineBarSeq config json file path. CBS_cfg_d contains:
+            out_prefix_fp: (s) Output PoolCount/Colsum/Ignore File to write to
+            pool_fp: (s) Input pool file to parse
+            codes_fp_l: list<code_fp> List of all codes filepaths
+                code_fp: (str) Path to codes file
+            save_ignore: (b) If True, we save ignored lines to out_prefix_fp.ignored 
+        HTML_op_fp: (s) Path to write HTML file to
+        """
+        # Input documented at poct.FullProgram.PC_RunAll
+        FullRun_d = {
+            "MC_config_d": {
+                "out_prefix": os.path.join(MC_dir,"MC_"),
+                "bs3_fp": '/kb/module/lib/poolcount/barseq3.index2',
+                "maxReads": parsed_params_dict["max_Reads"],
+                "minQuality": parsed_params_dict["minQuality"],
+                "debug": parsed_params_dict["debug"],
+                "protocol_type": parsed_params_dict["protocol_type"], 
+                "doOff1": parsed_params_dict["doOff1"], 
+                "MC_seqs": {
+                        "dnt_pre": 'GTCTCGTAG',
+                        "dnt_post": 'CGATGAATT',
+                        "bs_pre": 'CAGCGTACG',
+                        "bs_post": 'AGAGACCTC'
+                }
+            },
+            "fq_index_list": fastq_dicts_list,
+            "CBS_config_d": { 
+                'out_prefix_fp': poolcount_prefix, 
+                'pool_fp': poolfile_path, 
+                'save_ignore': parsed_params_dict["save_ignore_bool"] 
+            },
+            "HTML_op_fp": main_HTML_fp
+        }
+        # Running all programs:
+        PC_RunAll(FullRun_d)
+
+
+
+        """
+        #multicodes_HTML_list = []
         # Running MultiCodes
         codes_fp_list = []
         for i in range(mc_run_num):
@@ -157,27 +245,34 @@ class poolcount:
         report_str += "\n---Combine BarSeq Warnings---\n\n{}".format(
                     "\n".join(cmb_bs_out["cbs_report_dict"]["warnings"]))
 
+        """
+
 
         # Now we upload the poolcount file to KBase to make a PoolCount Object
         if parsed_params_dict['KB_PoolCount_Bool']:
             upload_params = {
                     'username': parsed_params_dict['username'],
-                    'fastq_refs': parsed_params_dict['fastq_files_refs_list'],
+                    'fastq_refs': parsed_params_dict['fastq_files'],
                     'genome_ref': parsed_params_dict['genome_ref'],
                     'poolcount_description': parsed_params_dict[
                         'poolcount_description'] ,
                     'workspace_id': ws_id,
                     'ws_obj': ws,
-                    'poolcount_fp': poolcount_fp,
-                    'poolcount_name': poolcount_fn,
+                    'poolcount_fp': poolcount_prefix + ".poolcount",
+                    'poolcount_name': parsed_params_dict['output_name'],
                     'dfu': dfu,
                     "scratch_dir": self.shared_folder,
                     "set_name": parsed_params_dict['output_name']
-                    }
+            }
             logging.info("UPLOADING PoolCount FILE to KBASE through DFU")
             upload_poolfile_results = upload_poolcount_to_KBase(upload_params)
             logging.info("Upload PoolCount File Results:")
             logging.info(upload_poolfile_results)
+
+
+        # DEBUGGING WHAT REPORT DICT LOOKS LIKE
+        with open(os.path.join(self.shared_folder, "Report.JSON"), 'w') as g:
+            g.write(json.dumps(report_dict, indent=2))
 
 
         #Cleaning outputs dir (removing .codes, .close, .counts files)
@@ -199,8 +294,29 @@ class poolcount:
             'description': 'The folder containing outputs from this app'
                 }
 
+
+
+
+        HTML_report_shock_id = dfu.file_to_shock({
+                "file_path": HTML_dir,
+                "pack": "zip"
+                })['shock_id']
+
+        HTML_report_d_l = [{"shock_id": HTML_report_shock_id,
+                            "name": os.path.basename(os.path.join(HTML_dir,"index.html")),
+                            "label": "PoolCount Report",
+                            "description": "HTML Summary Report for MultiCodes and Combine BarSeq"
+                            }]
+
+
+
+
         extended_report_params = {
                 'workspace_name': params['workspace_name'],
+                "html_links": HTML_report_d_l,
+                "direct_html_link_index": 0,
+                "html_window_height": 333,
+                "report_object_name": "KB_PoolCount_Report",
                 'file_links' : [dir_link_dict],
                 'message': ""
                 }

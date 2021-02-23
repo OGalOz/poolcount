@@ -9,11 +9,31 @@ from combineBarSeq import init_pool_dict
 
 #params is a dict, as provided by the SDK
 def parse_and_check_params(params):
+    """
+    Args:
+        params: (d)
+            "poolfile_ref": pool_ref (str),
+            "fastq_files": list<fastq_refs (str)>,
+            "genome_ref": genome_ref (str), 
+            "KB_PoolCount_Bool": "yes"/"no" - create a poolcount file?
+            "poolcount_description": (str) A text description of the pool file,
+            "output_name": (str),
+            "test_local_bool": test_local_bool
+            ['workspace_name']: self.wsName,
+            "save_ignore_bool": bool,
+            "max_Reads": int or None,
+            "minQuality": int,
+            "debug": bool,
+            "protocol_type": str,
+            "doOff1": bool 
+    """
 
     logging.warning(params)
 
     for p in ["poolfile_ref", "fastq_files", "KB_PoolCount_Bool",
-            "poolcount_description", "genome_ref", "output_name"]:
+            "poolcount_description", "genome_ref", "output_name",
+            "test_local_bool", "save_ignore_bool", "max_Reads",
+            "minQuality", "debug", "protocol_type", "doOff1"]:
         if p not in params:
             raise Exception(p + " not found in params")
 
@@ -28,15 +48,10 @@ def parse_and_check_params(params):
         logging.info("Will not create KBase pool object due to user param.")
         kb_pc_bool = False 
 
-    parsed_params_dict = {
-            "poolfile_ref": params["poolfile_ref"],
-            'fastq_files_refs_list': params['fastq_files'],
-            "genome_ref": params["genome_ref"],
-            'output_name': check_output_name(params['output_name']),
-            "KB_PoolCount_Bool": kb_pc_bool,
-            "poolcount_description": params["poolcount_description"]
-    }
-    
+    # Duplicating params dict
+    parsed_params_dict = {x:params[x] for x in params.keys()}
+    # Updating certain keys
+    parsed_params_dict["KB_PoolCount_Bool"] =  kb_pc_bool
 
     return parsed_params_dict
 

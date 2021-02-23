@@ -76,8 +76,27 @@ class poolcountTest(unittest.TestCase):
 
         fastq_refs = [fastq_ref_1, fastq_ref_2]
 
-        test_local_bool = True
+        test_local_bool = False 
 
+        # added
+        save_ignore_bool = True
+
+        # added
+        max_Reads = None
+
+        # added
+        minQuality = 0
+
+        debug = False
+
+        # 'custom' (requires preseq/postseq) or 'dntag' (requires index_file)
+        # or 'base' or 'bs3' or 'n25' or 'Unknown'
+        protocol_type = "n25"
+        # Below only if protocol_type == 'custom'
+        preseq = None
+        postseq = None
+
+        doOff1 = False
 
         ret = self.serviceImpl.run_poolcount(self.ctx, 
                 {
@@ -88,5 +107,13 @@ class poolcountTest(unittest.TestCase):
                 "KB_PoolCount_Bool": "yes",
                 "poolcount_description": "Testing",
                 "output_name": set_output_name,
-                "test_local_bool": test_local_bool
+                "test_local_bool": test_local_bool,
+                "save_ignore_bool": save_ignore_bool,
+                "max_Reads": max_Reads,
+                "minQuality": minQuality,
+                "debug": debug,
+                "protocol_type": protocol_type,
+                "doOff1": doOff1,
+                "preseq": preseq,
+                "postseq": postseq
                     })

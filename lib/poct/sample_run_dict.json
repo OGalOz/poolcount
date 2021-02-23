@@ -1,0 +1,23 @@
+{
+    "multi_codes_run_list": [
+    {"out_fp_prefix": "tmp/fri_one" , "fastq_fp": "Test_Files/Cola_ML5/FASTQ_GZ/fri_first_IT005.fastq" , 
+
+        "index": "IT005" , "debug": false },
+    {"out_fp_prefix": "tmp/fri_two" , "fastq_fp": "Test_Files/Cola_ML5/FASTQ_GZ/fri_first_IT006.fastq" , 
+        "index": "IT006" , "debug": false },
+
+        {"out_fp_prefix": "tmp/fri_three" , "fastq_fp": "Test_Files/Cola_ML5/FASTQ_GZ/fri_first_IT007.fastq" , 
+            "index": "IT007" , "debug": false },
+
+        {"out_fp_prefix": "tmp/fri_four" , "fastq_fp": "Test_Files/Cola_ML5/FASTQ_GZ/fri_first_IT008.fastq" , 
+            "index": "IT008" , "debug": false },
+
+        {"out_fp_prefix": "tmp/fri_five" , "fastq_fp": "Test_Files/Cola_ML5/FASTQ_GZ/fri_first_IT009.fastq" , 
+            "index": "IT009" , "debug": false }
+   ],
+    "pool_path": "Test_Files/feba_148_pool.n10",
+    "old_run_list": [
+    
+    ]
+
+}

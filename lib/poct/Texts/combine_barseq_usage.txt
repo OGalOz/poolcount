@@ -1,0 +1,1 @@
+Usage: combineBarSeq.pl out pool_file codesfiles...\n

@@ -1,0 +1,23 @@
+Run python3 FullProgram, inputs are decided there.
+
+
+
+We run MultiCodes multiple times, inputs to MultiCodes are decided at ...
+
+In sample_run_dict.json, you can see the sample input dict to run MultiCodes
+    and then a sample input dict to run CombineBarSeq
+
+First, generate a list similar to "multi_codes_run_list" in 'sample_run_dict.json'
+Then, iterate through that list to run MultiCodes.
+Take a part of  the outputs from MultiCodes and add them to a list titled 
+    codes_fp_list
+
+
+How do the indexes work?
+    Normally people use bs3
+
+
+
+
+
+
