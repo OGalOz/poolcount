@@ -167,7 +167,7 @@ def Create_MC_Table(MC_rd):
                     ['# Multiplexed ', prep_int(MC_rd['nMultiplexed'])],
                     ['# Reads with Usable Barcodes (length 20)', prep_int(MC_rd['nOff']["20"])],
                     ['Fraction of Reads with Usable Barcodes', 
-                            str(float(MC_rd['nOff']["20"])/float(r))[:5]],
+                            str(round(float(MC_rd['nOff']["20"])/float(r), 6))],
                     ["# Unique Barcodes", prep_int(MC_rd['nUniqBC'])]
                 ]
                 
