@@ -82,6 +82,10 @@ class poolcount:
         """
         # ctx is the context object
         # return variables are: output
+        logging.info("INPUT PARAMS:")
+        logging.info(params)
+
+
 
         #BEGIN run_poolcount
         report = KBaseReport(self.callback_url)

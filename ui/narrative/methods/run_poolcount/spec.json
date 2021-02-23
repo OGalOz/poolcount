@@ -222,8 +222,8 @@
 
         },
         {
-        "id": "maxReads",
-            "optional": true,
+        "id": "max_Reads",
+            "optional": false,
             "text_options" : {
                 "validate_as" : "int"
             },
