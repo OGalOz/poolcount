@@ -14,7 +14,7 @@ def parse_and_check_params(params):
         params: (d)
             "poolfile_ref": pool_ref (str),
             "fastq_files": list<fastq_refs (str)>,
-            "genome_ref": genome_ref (str), 
+            "genes_table_ref": genes_table_ref (str), 
             "KB_PoolCount_Bool": "yes"/"no" - create a poolcount file?
             "poolcount_description": (str) A text description of the pool file,
             "output_name": (str),
@@ -31,7 +31,7 @@ def parse_and_check_params(params):
     logging.warning(params)
 
     for p in ["poolfile_ref", "fastq_files", "KB_PoolCount_Bool",
-            "poolcount_description", "genome_ref", "output_name",
+            "poolcount_description", "genes_table_ref", "output_name",
             "test_local_bool", "save_ignore_bool", "max_Reads",
             "minQuality", "debug", "protocol_type", "doOff1"]:
         if p not in params:
@@ -41,7 +41,7 @@ def parse_and_check_params(params):
         elif params[p] in ["false", "False"]:
             params[p] = False
 
-    for ref in [params['poolfile_ref'], params['genome_ref']] + params['fastq_files']:
+    for ref in [params['poolfile_ref'], params['genes_table_ref']] + params['fastq_files']:
         if len(ref.split('/')) != 3:
             raise Exception('ref format not A/B/C as expected: ' + ref)
 

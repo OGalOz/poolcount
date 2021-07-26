@@ -122,6 +122,7 @@ def WriteToPoolCount(pool_d, counts, nSamples, out_prefix, indexes):
         barcode_list = pool_d[rcbarcode]
 
         if rcbarcode in counts:
+            # list of counts related to indexes
             count_num_list = counts[rcbarcode]
         else:
             count_num_list = None
@@ -129,7 +130,7 @@ def WriteToPoolCount(pool_d, counts, nSamples, out_prefix, indexes):
         out_list = [ barcode_list[0], rcbarcode, barcode_list[1], 
                 barcode_list[2], str(barcode_list[3]) ]
 
-        if count_num_list != None:
+        if count_num_list is not None:
             if len(count_num_list) < nSamples:
                 count_num_list += [0] * (nSamples-len(count_num_list))
             out_list += [str(x) for x in count_num_list]

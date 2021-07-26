@@ -66,7 +66,7 @@ class poolcount:
             params:
                 "poolfile_ref": pool_ref (str),
                 "fastq_files": list<fastq_refs (str)>,
-                "genome_ref": genome_ref (str), 
+                "genes_table_ref": genes_table_ref (str), 
                 "KB_PoolCount_Bool": "yes"/"no" - create a poolcount file?
                 "poolcount_description": (str) A text description of the pool file,
                 "output_name": (str),
@@ -115,7 +115,7 @@ class poolcount:
 
 
         # parsed_params_dict contains keys: 
-        # poolfile_ref, fastq_files_refs_list, genome_ref, output_name,
+        # poolfile_ref, fastq_files_refs_list, genes_table_ref, output_name,
         # KB_PoolCount_Bool, poolcount_description
         parsed_params_dict = parse_and_check_params(params)
         # We get the username for later
@@ -258,7 +258,7 @@ class poolcount:
             upload_params = {
                     'username': parsed_params_dict['username'],
                     'fastq_refs': parsed_params_dict['fastq_files'],
-                    'genome_ref': parsed_params_dict['genome_ref'],
+                    'genes_table_ref': parsed_params_dict['genes_table_ref'],
                     'poolcount_description': parsed_params_dict[
                         'poolcount_description'] ,
                     'workspace_id': ws_id,

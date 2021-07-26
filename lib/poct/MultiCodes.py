@@ -52,7 +52,7 @@ def RunMultiCodes(MC_d):
             (Nec. if protocol_type is custom)
         fastq_fp: (str)
 
-    Output:
+    Returns:
         Report_Dict: (d)
             fastq_fp: s 
             nReads: i
@@ -150,7 +150,7 @@ def PrepareMCOutput(vrs):
 
 def EstimateDiversity(inp_d):
     """
-    Inputs:
+    Args:
         inp_d: (d) Necessary keys:
             minQuality: (i)
             nOff: (d)
@@ -159,7 +159,7 @@ def EstimateDiversity(inp_d):
             doOff1: (b)
             offby1: (d) 
                 Barcode -> 1 if likely offby1 error
-    Outputs:
+    Returns:
         ED_d: (d) Estimate Diversity dict. Optional keys:
             [noise]: (d)
                 percent_noise: (f) (prcnt)
@@ -209,13 +209,13 @@ def EstimateDiversity(inp_d):
 
 def EstimateBias(inp_d):
     """
-    Inputs:
+    Args:
         inp_d: d Necessary keys:
             minQuality
             codes
             nPerCount
             nOff
-    Output:
+    Returns:
         countSofar: (i)
         percent_codes: (f) prcnt
         k_codes: (f)
@@ -257,7 +257,7 @@ def EstimateBias(inp_d):
 
 def WriteOutCloseGetOffBy1(inp_d):
     """
-    Inputs:
+    Args:
         inp_d: (d)
             out_prefix: (Str)
             doOff1: (b)
@@ -325,7 +325,7 @@ def WriteOutCloseGetOffBy1(inp_d):
 
 def WriteOutCounts(inp_d):
     """
-    Inputs:
+    Args:
         inp_d: (d) Must contain keys
             out_prefix: (str)
             nPerCount: (d)
@@ -362,17 +362,16 @@ def WriteOutCounts(inp_d):
 
 def WriteOutCodesGetnPerCount(inp_d):
     """
-    Inputs:
+    Args:
         inp_d: (d) Necessary keys:
             prefixNames: (list<str>) (List of prefix indexnames)
             prefix: (list<list>) List of [nLeading, indexseq, indexname]
             out_prefix: (str) Path to out file
             codes: (d) 
             Rd: (d) report_dict
-    Outputs:
+    Returns:
         nPerCount: (d)
             sum of counts per index (i) - > number of codes with that sum (i)
-
     """
 
     #Will add this to inp_d later
@@ -511,7 +510,7 @@ def CheckInputs(MC_d):
 
 def GetProtocolVariables(inp_d):
     """
-    Inputs: (Essential)
+    Args: (Essential)
         inp_d: (dict)
             protocol_type: (str)
                 'custom' or 'dntag' or 'base' or 'bs3' or 'n25' or 'Unknown'
@@ -589,7 +588,7 @@ def GetBarSeq3Info(inp_d):
         bs3_fp: (str) filepath to barseq3.index2
         index_name: (str) Index name
 
-    Outputs:
+    Returns:
         
 
     In the case that the second index is found,
@@ -637,7 +636,7 @@ def MyGrep(hash_list, index_name, iname):
     index_name: (str) key in subdict that maps to index names
     iname: (str) the index name we want.
 
-    Outputs:
+    Returns:
         list<dict> minimized such that only dicts with wanted index name
             are in it.
     """
@@ -656,7 +655,7 @@ def ReadTable(fp, required):
     fp: (str) Filepath to TSV file
     required: (list<str>) A list of required headers in string format.
 
-    Output:
+    Returns:
         rows: list<dicts>
             each dict is a map of headers to values, which are all strings
     
@@ -702,7 +701,7 @@ def IndexFileOrInameToPrefixInfo(inp_d):
     """
     There are two options: Either an index file path to get index information,
         or an index name, in which case prefix is a list with length 1 
-    Inputs:
+    Args:
         inp_d: (dict)
             [indexfile_fp] (str)
 
@@ -736,7 +735,7 @@ def IndexFileOrInameToPrefixInfo(inp_d):
 
 def InitReport(inp_d):
     """
-    Inputs:
+    Args:
         inp_d: (dict)
             fastq_fp: (str)
             nOff: (dict)
@@ -753,7 +752,7 @@ def InitReport(inp_d):
             [index2]: (str)
                 [nWrongIndex2]: (int)
 
-    Outputs:
+    Returns:
         Rd: (d) Report Dict
             fastq_fp: s
             nReads: i
@@ -813,7 +812,7 @@ def InitReport(inp_d):
 
 def ParseFastqInput(inp_d):
     """
-    Inputs:
+    Args:
         inp_d: (dict) Necessary keys: (There are others unused)
             fastq_fp: (str) path to FASTQ file
             maxReads: (int) A limit on number of reads from FASTQ
@@ -900,8 +899,8 @@ def ParseFastqInput(inp_d):
             if nWrongPrePos >= 200 and nWrongPrePos >= (0.1 * nReads):
                 raise Exception("Over 10% of reads have the wrong spacing ( \
                         not {}:{}) to the pre-sequence ({} \
-                        of {} so far).\n Perhaps you chose the wrong \
-                        protocol (i.e., -n25 or -bs3)?\n".format(
+                        of {} so far).\n Maybe the wrong \
+                        protocol indicated (i.e., 'n25' or 'bs3')?\n".format(
                             inp_d["nPreExpectedMin"],
                             inp_d["nPreExpectedMax"],
                             nWrongPrePos,
@@ -952,19 +951,19 @@ def ParseFastqInput(inp_d):
 
 
 
-#seq is DNA sequence (str) 
-#indexes is a list of lists, internal lists are [nLeading, indexseq, name],
+# seq is DNA sequence (str) 
+# indexes is a list of lists, internal lists are [nLeading, indexseq, name],
 #   where nLeading is an int, indexseq is str, name is str 
-#debug in inp_d, True or False 
+# debug in inp_d, True or False 
 def FindPrefix(seq, indexes, debug):
     """
-    Inputs:
+    Args:
         seq: (str) DNA sequence (from FASTQ)
         indexes: list<list> internal lists are [nLeading, indexseq, name]
                                                 ([int, str, str])
                 the list is the same as the variable 'prefix'
         debug: (bool) 
-    Outputs:
+    Returns:
         
     """
     matches = []
@@ -987,7 +986,7 @@ def FindPrefix(seq, indexes, debug):
 
 def UpdateCodesiPrefix(codes_dict, barcode, iPrefix, lenPrefix):
     """
-    Inputs:
+    Args:
         codes_dict: (dict)
             barcode (str) -> prefixlist
                 prefixlist: list<int>
@@ -1015,9 +1014,9 @@ def UpdateCodesiPrefix(codes_dict, barcode, iPrefix, lenPrefix):
 def IndexFileToPrefixInfo(index_fp):
     """
     This function does not make sense given extant indexfiles
-    Inputs:
+    Args:
         index_fp: (str) filepath to index file (TSV) with two columns
-    Outputs:
+    Returns:
         ret_d: (dict)
             "report_str": (str)
             "prefixNames": list<str>,
@@ -1086,7 +1085,7 @@ def IndexFileToPrefixInfo(index_fp):
 #offset int, usually 0
 def FindBarcode(seq, quality, offset, inp_d):
     """
-    Inputs:
+    Args:
         seq: (str) Sequence from FASTQ Read
         quality: (str) Quality from FastQ Read
         offset: (int) Represents location after nLeading and index sequence
@@ -1223,7 +1222,7 @@ def FindBarcode(seq, quality, offset, inp_d):
 
 def CheckRead(read_name, seq, break_line, quality, fastq_fp, line_num):
     """
-    Inputs are all fastq strings without ending linebreak
+    Args are all fastq strings without ending linebreak
     line_num refers to line number of read_name (int)
     """
     if not read_name[0] == "@":

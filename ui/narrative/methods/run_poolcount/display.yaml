@@ -39,13 +39,13 @@ parameters :
             One of the reads files relating to the pool file
         long-hint : |
             Normally a result from Illumina- reads from the project return in fastq format.
-    genome_ref :
+    genes_table_ref :
         ui-name : |
-            Related Genome
+            Related Genes Table
         short-hint : |
-            The Genome related to this work
+            The Genes Table Object related to this work
         long-hint: |
-            The poolfile comes from a genome and fastq reads. Use the same genome in this.
+            The poolfile comes from a genome, genes table and fastq reads. Use the same genes table in this.
     KB_PoolCount_Bool :
         ui-name : |
             Create KBase PoolCount? 
