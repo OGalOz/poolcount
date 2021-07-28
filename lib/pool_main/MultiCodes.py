@@ -66,6 +66,15 @@ def load_config():
 
 
 def estimate_bias(vars_dict):
+    """
+    vars_dict (d):
+        minQuality (int):
+        nUniq (int):
+        nPerCount: Dict mapping numbers to total number of barcodes that have
+                    that number of appearances (int) -> (int)
+        report_dict (d): Will store information
+        report_str (str): Report string
+    """
 
     if vars_dict['minQuality'] > 0 and vars_dict['nUniq'] >= 5000:
         #What fraction of reads are accounted for by the top 1% of strains?
@@ -74,7 +83,7 @@ def estimate_bias(vars_dict):
         nCodesSofar = 0
         countSofar = -1
         nPerCount = vars_dict['nPerCount']
-        sorted_npc_keys = sorted(nPerCount.keys())
+        sorted_npc_keys = sorted(nPerCount.keys(), reverse=True)
         for count in sorted_npc_keys:
             nReadsSofar += count * nPerCount[count]
             nCodesSofar += nPerCount[count]
@@ -217,11 +226,6 @@ def off_by_one_cases_and_write_to_out_close(vars_dict):
 
     return vars_dict
     
-
-
-
-
-
 
 def write_to_out_counts(vars_dict):
     out_counts_str = "\t".join(["Count","nCodes", "Frac"]) + "\n"

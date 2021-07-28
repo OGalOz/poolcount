@@ -134,7 +134,7 @@ def Create_MC_Table(MC_rd):
                             percent_noise: (f) (already prcnt)
                             diversity: (f)
                             seen_once: (f)
-                [seen_twice]: i Exists if key 'noise' is in EstimateDiverity_d
+                [seen_twice] (i): Exists if key 'noise' is in EstimateDiverity_d
                 [good]: (d)
                     good_codes: (f)
                     percent_good_reads: (f) (prcnt)
