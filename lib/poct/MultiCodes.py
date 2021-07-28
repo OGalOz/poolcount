@@ -195,7 +195,7 @@ def EstimateDiversity(inp_d):
         for code in inp_d['codes'].keys():
             count = inp_d['codes'][code]
             tot = sum(count)
-            if (code in inp_d['offby1'] != None and tot > 1 ):
+            if ((code not in inp_d['offby1']) and (tot > 1)):
                 nGoodCodes += 1
                 nGoodReads += tot
 
@@ -235,7 +235,7 @@ def EstimateBias(inp_d):
         nCodesSofar = 0
         countSofar = -1
         nPerCount = inp_d['nPerCount']
-        sorted_npc_keys = sorted(nPerCount.keys())
+        sorted_npc_keys = sorted(nPerCount.keys(), reverse=True)
         for count in sorted_npc_keys:
             nReadsSofar += count * nPerCount[count]
             nCodesSofar += nPerCount[count]
