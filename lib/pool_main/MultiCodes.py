@@ -152,7 +152,7 @@ def estimate_diversity(vars_dict):
         for code in vars_dict['codes'].keys():
             count = vars_dict['codes'][code]
             tot = sum(count)
-            if (code in vars_dict['offby1'] != None and tot > 1 ):
+            if ((code not in vars_dict['offby1']) and (tot > 1)):
                 nGoodCodes += 1
                 nGoodReads += tot
 
