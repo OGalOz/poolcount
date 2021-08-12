@@ -6,15 +6,11 @@ import os, shutil, json
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.WorkspaceClient import Workspace
-from pool_main.parse_and_test_params import parse_and_check_params
+from poct.parse_and_test_params import parse_and_check_params
 from poct.downloader import download_fastq_and_prepare_mc, download_poolfile
 from poct.FullProgram import PC_RunAll  
-from pool_main.pool_util import clean_output_dir
-from pool_main.upload_poolcount import upload_poolcount_to_KBase
-#from pool_main.run_multi_codes import run_multi_codes_from_dict
-#from pool_main.run_combine_barseq import run_combine_barseq_from_dict
-#from pool_main.PoolCountHTMLReport import CreateHTMLString
-#from pool_main.upload_exps import upload_expsfile_to_KBase
+from poct.pool_util import clean_output_dir
+from poct.upload_poolcount import upload_poolcount_to_KBase
 #END_HEADER
 
 
@@ -66,7 +62,7 @@ class poolcount:
             params:
                 "poolfile_ref": pool_ref (str),
                 "fastq_files": list<fastq_refs (str)>,
-                "genes_table_ref": genes_table_ref (str), 
+                "genome_ref": genome_ref (str), 
                 "KB_PoolCount_Bool": "yes"/"no" - create a poolcount file?
                 "poolcount_description": (str) A text description of the pool file,
                 "output_name": (str),
@@ -126,13 +122,12 @@ class poolcount:
         poolfile_path = os.path.join(self.shared_folder, "kb_pool.pool")
 
         download_poolfile(
-            parsed_params_dict['poolfile_ref'], poolfile_path, dfu)
+            parsed_params_dict['poolfile_ref'], poolfile_path, dfu,
+            genome_ref = parsed_params_dict['genome_ref'])
         
         poolcount_prefix = os.path.join(outputs_dir,
                                         parsed_params_dict["output_name"]
                                         )
-
-
 
 
         fastq_dicts_list = download_fastq_and_prepare_mc(parsed_params_dict, 
@@ -258,7 +253,7 @@ class poolcount:
             upload_params = {
                     'username': parsed_params_dict['username'],
                     'fastq_refs': parsed_params_dict['fastq_files'],
-                    'genes_table_ref': parsed_params_dict['genes_table_ref'],
+                    'genome_ref': parsed_params_dict['genome_ref'],
                     'poolcount_description': parsed_params_dict[
                         'poolcount_description'] ,
                     'workspace_id': ws_id,

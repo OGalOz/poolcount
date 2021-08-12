@@ -33,7 +33,7 @@
         }
         },
         {
-            "id": "genes_table_ref",
+            "id": "genome_ref",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
@@ -266,8 +266,8 @@
                     "target_property": "fastq_files",
                     "target_type_transform": "resolved-ref"
                 },{
-                    "input_parameter": "genes_table_ref",
-                    "target_property": "genes_table_ref",
+                    "input_parameter": "genome_ref",
+                    "target_property": "genome_ref",
                     "target_type_transform": "resolved-ref"
                 },{
                     "input_parameter": "KB_PoolCount_Bool",

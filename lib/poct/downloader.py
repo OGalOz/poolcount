@@ -54,7 +54,7 @@ def convert_fastq_filename(original_fastq_fn):
 
 
 # Gets poolfile path
-def download_poolfile(poolfile_ref, poolfile_path, dfu):
+def download_poolfile(poolfile_ref, poolfile_path, dfu, genome_ref=None):
 
     GetObjectsParams = {
             'object_refs': [poolfile_ref]
@@ -66,6 +66,15 @@ def download_poolfile(poolfile_ref, poolfile_path, dfu):
     logging.info(PoolFileObjectData)
 
     poolfile_handle = PoolFileObjectData['poolfile']
+    related_genome_ref = PoolFileObjectData['related_genome_ref']
+    if genome_ref is not None:
+        if related_genome_ref != genome_ref:
+            raise Exception("The genome ref associated with the poolfile is "
+                            f"'{related_genome_ref}', whereas the current genome "
+                            f"ref is '{genome_ref}'. The two must match.")
+        else:
+            logging.info("The pool file's genome ref and the current genome ref given match.")
+
 
     # Set params for shock to file
     ShockToFileParams = {

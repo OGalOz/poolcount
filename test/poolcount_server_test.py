@@ -122,9 +122,9 @@ class poolcountTest(unittest.TestCase):
         logging.info(ret)
     '''
     def test_48_keio(self):
-        pool_ref = "62686/35/1"
+        pool_ref = "63063/5/1"
         set_output_name = "Keio_Test_48"
-        genes_table_ref = "62686/5/1"
+        genome_ref = "63063/3/1"
         fastq_ref_1 = '62686/51/1' 
         fastq_ref_2 = '62686/50/1'
         fastq_ref_3 = '62686/49/1'
@@ -149,7 +149,7 @@ class poolcountTest(unittest.TestCase):
                 'workspace_name': self.wsName,
                 "poolfile_ref": pool_ref,
                 "fastq_files": fastq_refs,
-                "genes_table_ref": genes_table_ref, 
+                "genome_ref": genome_ref, 
                 "KB_PoolCount_Bool": "yes",
                 "poolcount_description": "Testing",
                 "output_name": set_output_name,
