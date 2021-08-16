@@ -1,0 +1,65 @@
+TD:
+    Remove "multiplexing" feature from PoolCount to simplify it.
+
+
+
+The program is divided into two main scripts:
+"MultiCodes", and "Combine BarSeq". There are
+no config json files, the config d is generated
+in the impl file 'lib/poolcount/poolcountImpl.py'
+If your FASTQ files are not yet multiplexed,
+make sure to multiplex them, and have them named
+such that the Index is part of the name of 
+the file.
+When we download the FASTQ files from KBase, we 
+use the filenames to get the name of the index
+associated with that file. This is done at 
+the function lib/poct/downloader.convert_fastq_fp_list_to_add_index
+*If using bs3 as protocol, index names must look like "IT001"  - "IT096"
+    Or as listed in the lib/poolcount/barseq3.index2 file.
+For the barseq3.index2 file, there are several columns which
+mean different things - 
+"index_name" - The name of the index
+"index_sequence": 6 nucleotide sequence
+"index2": 6 nucleotide sequence
+"nN" - nN is the number of Ns in the primer (i.e., the spacing between the Illumina adapter, which is before the Ns and will not be part of the read, and the barseq primer, which is downstream of the Ns)
+
+"MultiCodes": At 'lib/poct/MultiCodes.RunMultiCodes'
+        We get the DNA sequences 'preseq' and 'postseq',
+        which are based on the protocol type. The protocol
+        type also gives us the numbers nPreExpectedMin and
+        nPreExpectedMax.
+        If the FASTQ indeces were not yet multiplexed,
+        make sure to make them multiplexed.
+        There is a situation in which we use the index File
+        instead of "indexname" for each, in that case refer 
+        to "indexFile". Normally, we get a single index name
+        per FASTQ file (If they were multiplexed). The alternative 
+        would be to have the indeces mixed in a single file?
+
+        For each read in the FASTQ file, we use the following
+        to select whether a barcode is good:
+        preseq, postseq, nPreExpectedMin, nPreExpectedMax 
+        How we use them, is that 
+        we look for barcodes
+        by finding the expected presequence and postsequence
+        at certain positions.
+
+    prefix: 
+        Another thing we get is "prefix", a list of smaller 
+        index-lists, where each sublist looks like 
+        [nLeading (int), indexseq (str), name (str)].
+
+        This list is extracted from a file 
+        nLeading means 
+        indexseq is
+        name is
+
+"Combine BarSeq": At 'lib/poct/CombineBarSeq.RunCombineBarSeq'
+
+
+
+
+
+
+

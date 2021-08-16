@@ -206,7 +206,6 @@ class poolcount:
         PC_RunAll(FullRun_d)
 
 
-
         """
         #multicodes_HTML_list = []
         # Running MultiCodes
@@ -258,6 +257,7 @@ class poolcount:
                         'poolcount_description'] ,
                     'workspace_id': ws_id,
                     'ws_obj': ws,
+                    'protocol_type': parsed_params_dict["protocol_type"],
                     'poolcount_fp': poolcount_prefix + ".poolcount",
                     'poolcount_name': parsed_params_dict['output_name'],
                     'dfu': dfu,

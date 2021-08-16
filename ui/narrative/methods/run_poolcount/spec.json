@@ -94,9 +94,14 @@
         "default_values": [""],
         "field_type": "dropdown",
         "dropdown_options":{
-                "options": [{
-                    "value": "custom",
-                    "display": "custom"
+                "options": [
+                {
+                    "value": "bs3",
+                    "display": "bs3"
+                },
+                {
+                    "value": "n25",
+                    "display": "n25 (bs2)"
                 },
                 {
                     "value": "dntag",
@@ -105,18 +110,6 @@
                 {
                     "value": "base",
                     "display": "base"
-                },
-                {
-                    "value": "bs3",
-                    "display": "bs3"
-                },
-                {
-                    "value": "n25",
-                    "display": "n25"
-                },
-                {
-                    "value": "Unknown",
-                    "display": "Unknown - (Find(?))"
                 }
                ]
             }

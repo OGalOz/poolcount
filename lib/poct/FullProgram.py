@@ -38,7 +38,7 @@ def PC_RunAll(inp_d):
             fq_ind_d: (d) FASTQ INDEX DICT
                 fq_fp: (str) Fastq file path
                 [index_name] OR (str)
-                [indexfile_fp] (str) FOR NOW ONLY index_name
+                [indexfile_fp] (str) 
                 debug:
         CBS_config_d: (d) CombineBarSeq config json file path. CBS_cfg_d contains:
             out_prefix_fp: (s) Output PoolCount/Colsum/Ignore File to write to
@@ -48,6 +48,8 @@ def PC_RunAll(inp_d):
                 code_fp: (str) Path to codes file
         HTML_op_fp: (s) Path to write HTML file to
 
+    Description:
+        In this function we run multiple scripts.
     """
 
     logging.info("Beginning PC Run All")

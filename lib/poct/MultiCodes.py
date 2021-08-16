@@ -1,17 +1,14 @@
 """
 
 Explanation of Code:
-    
+
+
 
 """
 
 
-# This file is a translation of Morgan Price's MultiCodes.pl into python.
-import json
+# This file is a loose translation of Morgan Price's MultiCodes.pl into python.
 import os
-import sys
-import math
-import argparse
 import logging
 import re
 import copy
@@ -33,8 +30,8 @@ def RunMultiCodes(MC_d):
         out_prefix: (str) writes to this fp + '.codes', '.counts', '.close'
         maxReads: (int) max Reads from input FASTQ file (Also known as nLimit)
         [index_name]: (str) Name of index
-        [indexfile_fp]: (str) fp to an index file, which has a format as listed above XOR index_name
-            Rarely used*
+        [indexfile_fp]: (str) Not in use* fp to an index file, which has a format as 
+                            listed above XOR index_name. Rarely used*
         minQuality: (int) minQuality for FASTQ base pairs
         protocol_type: (str) 'custom' or 'dntag' or 'base' or 'bs3' or 'n25' or 'Unknown'
         [bs3_fp]: (str) Filepath to barseq3.index2 tsv file (Nec. if protocol_type is bs3)
@@ -83,7 +80,15 @@ def RunMultiCodes(MC_d):
                 k_codes: (f)
                 percent_reads: (f) prcnt
                 k_reads: (f)
-
+    Description:
+        *This is after removing multiplexing capabilities. 
+        First we get the index preseq/postseq sequences
+        to find the barcode, and also the index name.
+        This part is run once per FASTQ file.
+        We count the number of times each barcode
+        found was seen. We find barcodes by looking
+        for the preseq and postseq indicated in
+        the function 'GetProtocolVariables'.
     """
     # PREPARATION PHASE ---------------------------
     vrs = CheckInputs(MC_d)
@@ -92,7 +97,7 @@ def RunMultiCodes(MC_d):
     vrs = GetProtocolVariables(vrs)
 
     # We get prefix (essential list for downstream analysis)
-    vrs = IndexFileOrInameToPrefixInfo(vrs)
+    # vrs = IndexFileOrInameToPrefixInfo(vrs)
 
     # DEBUG
     #print(vrs)
@@ -109,10 +114,14 @@ def RunMultiCodes(MC_d):
     # WRITING TO OUTPUT -------------------
    
     # We write out to files
+    # out.codes - Barcode and number of times it was seen
     vrs = WriteOutCodesGetnPerCount(vrs)
 
+    # out.counts - For a given number of hits, how many barcodes match that? 
     vrs = WriteOutCounts(vrs)
 
+    # This writes the closest variants to barcodes and the differences
+    # in counts between them
     vrs = WriteOutCloseGetOffBy1(vrs)
 
     # RETURN TO USER --------------------
@@ -194,10 +203,9 @@ def EstimateDiversity(inp_d):
         nGoodReads = 0
         for code in inp_d['codes'].keys():
             count = inp_d['codes'][code]
-            tot = sum(count)
-            if ((code not in inp_d['offby1']) and (tot > 1)):
+            if ((code not in inp_d['offby1']) and (count > 1)):
                 nGoodCodes += 1
-                nGoodReads += tot
+                nGoodReads += count
 
         ED_d["good"] = {
             "good_codes": nGoodCodes,
@@ -261,8 +269,9 @@ def WriteOutCloseGetOffBy1(inp_d):
         inp_d: (d)
             out_prefix: (Str)
             doOff1: (b)
+            nOff: (int)
             codes: (d)
-                barcode -> list<int> representing indexes and times seen w/ barcode
+                barcode -> num times seen 
     """
     offby1 = {} # barcode => 1 for likely off-by-1 errors
 
@@ -280,10 +289,9 @@ def WriteOutCloseGetOffBy1(inp_d):
             count = codes[code]
             variants = GetVariants(code) # variants is a list
             for variant in variants:
-                if ((code > variant) - (code < variant)) > 0 and \
-                        variant in codes:  # first operator a substitute for cmp
-                    n1 = sum(count)
-                    n2 = sum(codes[variant])
+                if variant in codes: 
+                    n1 = count
+                    n2 = codes[variant]
                     out_close_str = "\t".join([str(code),
                         str(n1), str(variant), str(n2)]) + "\n"
                     OUTCLOSE.write(out_close_str)
@@ -333,6 +341,11 @@ def WriteOutCounts(inp_d):
             Rd: (d) Report Dict
             codes: (d) Barcode -> list of indexes and numbers of times barcode w/ index
 
+    Description:
+        Writes to out.counts file, which holds, for each count,
+        (which is a number of times a barcode was seen), how
+        many barcodes matched that number. Should be higher
+        closer to the smaller numbers.
     """
 
     out_counts_fp = inp_d["out_prefix"] + ".counts"
@@ -364,21 +377,23 @@ def WriteOutCodesGetnPerCount(inp_d):
     """
     Args:
         inp_d: (d) Necessary keys:
-            prefixNames: (list<str>) (List of prefix indexnames)
-            prefix: (list<list>) List of [nLeading, indexseq, indexname]
+            index_name (str): Name of index.
             out_prefix: (str) Path to out file
-            codes: (d) 
+            codes: (d) barcode -> number of times seen 
             Rd: (d) report_dict
     Returns:
         nPerCount: (d)
             sum of counts per index (i) - > number of codes with that sum (i)
+    Description:
+        We write 'codes' dict out to a file.        
+        File name is defined by key 'out_prefix' + '.codes'
+        File looks like "barcode\tindex_name\n" Then
+        one row per barcode and then number of times seen.
     """
 
     #Will add this to inp_d later
     nPerCount = {} # sum of counts per index - > number of codes with that count
-    header_list = ["barcode"] + inp_d['prefixNames']
-
-
+    header_list = ["barcode", inp_d['index_name']]
 
     out_codes_fp = inp_d['out_prefix'] + ".codes"
     OUTCODES = open(out_codes_fp, "w")
@@ -386,18 +401,16 @@ def WriteOutCodesGetnPerCount(inp_d):
     #initializing codes tmp string
     OUTCODES.write("\t".join(header_list) + "\n")
 
-
-    nPrefix = len(inp_d['prefix']) # will equal 1 if iname given
+    # nPrefix = len(inp_d['prefix']) # will equal 1 if iname given
 
     for barcode in inp_d['codes'].keys():
-        count_list = inp_d['codes'][barcode]
-        current_row_list = [barcode] + count_list
+        count = inp_d['codes'][barcode]
+        current_row_list = [barcode, count]
         OUTCODES.write("\t".join([str(x) for x in current_row_list]) + "\n")
-        nAll = sum(count_list)
-        if nAll in nPerCount:
-            nPerCount[nAll] += 1
+        if count in nPerCount:
+            nPerCount[count] += 1
         else:
-            nPerCount[nAll] = 1
+            nPerCount[count] = 1
 
     OUTCODES.close()
     
@@ -501,7 +514,8 @@ def CheckInputs(MC_d):
             raise Exception("nPreExpected must be greater than or equal to 0")
     elif MC_d["protocol_type"] == "dntag":
         if "index_name" in MC_d:
-            raise Exception("If protocol is dntag then we must have indexfile_fp, not index_name")
+            raise Exception("If protocol is dntag then we "
+                            "must have indexfile_fp, not index_name")
 
     return MC_d
 
@@ -519,10 +533,12 @@ def GetProtocolVariables(inp_d):
             bs3_fp: (str) Filepath to barseq3 index2 tsv file
                 this is a necessary input IF protocol_type == "bs3"
             MC_seqs:
-                "dntag_preseq": "GTCTCGTAG",
-                "dntag_postseq": "CGATGAATT",
-                "base_preseq": "CAGCGTACG",
-                "base_postseq": "AGAGACCTC"
+                "dnt_pre": "GTCTCGTAG",
+                "dnt_post": "CGATGAATT",
+                "bs_pre": "CAGCGTACG",
+                "bs_post": "AGAGACCTC"
+            nPreExpectedMin (essential if protocol
+            nPreExpectedMax
 
 
     You get the variables nPreExpectedMin(Max), and preseq and postseq 
@@ -534,13 +550,18 @@ def GetProtocolVariables(inp_d):
     pc = inp_d['protocol_type'] 
 
     seq_dict = inp_d["MC_seqs"]
-    if pc == "custom":
-        preseq = inp_d['preseq']
-        postseq = inp_d['postseq']
-        if inp_d['nPreExpected'] == None:
-            raise Exception("Missing -nPreExpected but has preseq and postseq")
-        nPreExpectedMin = inp_d['nPreExpected'] - 2
-        nPreExpectedMax = inp_d['nPreExpected'] + 2
+    if pc == "bs3":
+        # This function fails if index name isn't in the bs3 file
+        bs3_info_d = GetBarSeq3Info(bs3_info_d)
+        nPreExpectedMin = bs3_info_d['nPreExpectedMin']
+        nPreExpectedMax = bs3_info_d['nPreExpectedMax']
+        preseq = seq_dict["bs_pre"]
+        postseq = seq_dict["bs_post"]
+    elif pc == "n25":
+        nPreExpectedMin = 11
+        nPreExpectedMax = 14
+        preseq = seq_dict["bs_pre"]
+        postseq = seq_dict["bs_post"]
     elif pc == "dntag":
         preseq = seq_dict["dnt_pre"]
         postseq = seq_dict["dnt_post"]
@@ -554,29 +575,31 @@ def GetProtocolVariables(inp_d):
         else:
             nPreExpectedMin = 7
             nPreExpectedMax = 11
-            
         preseq = seq_dict["bs_pre"]
         postseq = seq_dict["bs_post"]
-
-    elif pc == "n25":
-        nPreExpectedMin = 11
-        nPreExpectedMax = 14
-        preseq = seq_dict["bs_pre"]
-        postseq = seq_dict["bs_post"]
-    elif pc == "bs3":
-        inp_d = GetBarSeq3Info(inp_d)
-        preseq = seq_dict["bs_pre"]
-        postseq = seq_dict["bs_post"]
-        nPreExpectedMin = inp_d['nPreExpectedMin']
-        nPreExpectedMax = inp_d['nPreExpectedMax']
+    elif pc == "custom":
+        # if 'preseq' and 'postseq' are empty, then what?
+        preseq = inp_d['preseq']
+        postseq = inp_d['postseq']
+        if inp_d['nPreExpected'] == None:
+            raise Exception("Missing -nPreExpected but has preseq and postseq")
+        nPreExpectedMin = inp_d['nPreExpected'] - 2
+        nPreExpectedMax = inp_d['nPreExpected'] + 2
     else:
-        raise Exception("Could not recognize protocol type: [" + pc + "]")
+        raise Exception("Could not recognize protocol type: '" + pc + "'")
 
     #Updates
+    # DNA sequences:
     inp_d['preseq'] = preseq
     inp_d['postseq'] = postseq 
+    # ints:
     inp_d['nPreExpectedMin'] = nPreExpectedMin
     inp_d['nPreExpectedMax'] = nPreExpectedMax
+
+    
+    logging.basicConfig(level=logging.DEBUG)
+    logging.info("preseq, postseq, nPreExpectedMin, nPreExpectedMax:")
+    logging.info(f" {preseq}, {postseq}, {nPreExpectedMin}, {nPreExpectedMax}")
 
     return inp_d
 
@@ -584,50 +607,66 @@ def GetProtocolVariables(inp_d):
 
 def GetBarSeq3Info(inp_d):
     """
-    inp_d: (dict)
-        bs3_fp: (str) filepath to barseq3.index2
-        index_name: (str) Index name
+    Args:
+        inp_d: (dict)
+            bs3_fp: (str) filepath to barseq3.index2
+            index_name: (str) Index name
 
     Returns:
-        
+        new_d (dict):
+           nPreExpectedMin (int)
+           nPreExpectedMax (int)
+           [index2] (str): DNA sequence
+           [index2At]:
 
-    In the case that the second index is found,
-        inp_d will have the keys index2 and index2At
-        We will also update the variable index2len
+    Description:
+        If the computed index name is not found in the 
+        BarSeq3 index file, then the program will halt.
+
+        In the case that the second index is found,
+            inp_d will have the keys index2 and index2At
+            We will also update the variable index2len
 
     """
+    new_d = {}
 
     #This is a special function to get the table fom file somehow
-    tab_base = ["index_name", "index2", "nN"]
+    required_bs3_file_columns = ["index_name", "index2", "nN"]
     #tab is a list of dicts with each line from ifile
-    tab = ReadTable(inp_d['bs3_fp'], tab_base)
-    #tabMatch is a subset of tab with dicts whose index name matches iname
-    tabMatch =  MyGrep(tab, "index_name", inp_d['index_name']) 
+    bs3_rows = ReadTable(inp_d['bs3_fp'], required_bs3_file_columns)
+    #tabMatch is a subset of rows in bs3 with dicts whose index_name matches
+    # main index_name
+    tabMatch = []
+    for row_d in bs3_rows:
+        if row_d["index_name"] == inp_d["index_name"]:
+            tabMatch.append(row_d)
+            break
 
-    if len(tabMatch) == 0: #?
-        
+    if len(tabMatch) == 0: 
+        # Could not find index name in the barseq3 file.
         warning_str = "Warning! Ignoring the second index -- index_name " \
              + "{} does not appear in {}\n".format(inp_d['index_name'], 
                     inp_d['bs3_fp'])
         #inp_d["report_dict"]["warnings"].append(warning_str)
         logging.warning(warning_str)
-        inp_d['nPreExpectedMin'] = 16
-        inp_d['nPreExpectedMax'] = 19
+        error_string = f"Index name {inp_d['index_name']} not found in barseq3 " + \
+                        f"index file at {inp_d['bs3_fp']}"
+        # Getting out of program.
+        raise Exception(error_string)
+        #new_d['nPreExpectedMin'] = 16
+        #new_d['nPreExpectedMax'] = 19
     else:
-        if len(tabMatch) > 1: #?
-            raise Exception("Multiple matches for index {} in {}".format(
-                inp_d['iname'], inp_d['ifile']))
-        #length of tabMatch is exactly 1 -- Should be
+        #length of tabMatch is exactly 1
         row = tabMatch[0]
         inp_d['index2'] = row['index2'] #str
-        inp_d['index2At'] = int(row['nN']) + 1 
+        inp_d['index2At'] = int(row['nN']) # (Number of ns before)
         nPE_preval = inp_d['index2At'] + 6 + 9
-        inp_d['nPreExpectedMin'] = nPE_preval - 2
-        inp_d['nPreExpectedMax'] = nPE_preval + 2
-    return inp_d
+        new_d['nPreExpectedMin'] = nPE_preval - 2
+        new_d['nPreExpectedMax'] = nPE_preval + 2
+    return new_d
 
 
-
+# NOT IN USE
 def MyGrep(hash_list, index_name, iname):
     """
     hash_list: (list<subdict>)
@@ -696,7 +735,7 @@ def ReadTable(fp, required):
     return rows
 
 
-
+# Deprecated
 def IndexFileOrInameToPrefixInfo(inp_d):
     """
     There are two options: Either an index file path to get index information,
@@ -715,15 +754,12 @@ def IndexFileOrInameToPrefixInfo(inp_d):
     # Report String doesn't exist yet
     if "index_name" in inp_d:
         logging.info("Recognized index type as index name")
+        # nLeading (int), Some sequence (str), index_name (str)
         prefix = [[0, "", inp_d['index_name']]]
         prefixNames = [inp_d['index_name']]
     else:
-        logging.info("Recognized index type as index file")
-        ret_d = IndexFileToPrefixInfo(inp_d['indexfile_fp'])
-        prefixNames = ret_d['prefixNames']
-        prefix = ret_d['prefix']
-        inp_d["report_str"] += ret_d['report_str']
-        logging.info(report_str)
+        raise Exception("Program only works with index_names now,"
+                        " index file deprecated.")
 
     #updating inp_d
     inp_d['prefix'] = prefix
@@ -816,28 +852,46 @@ def ParseFastqInput(inp_d):
         inp_d: (dict) Necessary keys: (There are others unused)
             fastq_fp: (str) path to FASTQ file
             maxReads: (int) A limit on number of reads from FASTQ
-            index_name: (str)
+            index_name: (str) Name of the index
             [index2]: (str) A sequence of length 6 (if protocol_type == 'bs3')
                 [index2At]: (int) location of index2 (if protocol_type == 'bs3')
-            prefix: list<sub_list> 
-                sub_list: [n's before index sequence (i), 
-                            index sequence (s), 
-                            index name (s)]
             debug: (bool)
             (For FindBarcode:)
             nPreExpectedMin: (int)
             nPreExpectedMax: (int)
             minQuality: (int)
 
+    Returns:
+        nWrongPrePos (int): 
+        nWrongIndex2 (int): 
+        nPostSeqUsed (int): How many times we used the postSeq while finding
+                            the read.
+        nReads (int): Total number of reads 
+        nMulti (int): Number of reads with the prefix found (should be many). 
+        nOff (dict): mapping from number 18-24 to number of times that offset seen.
+        codes (dict):  barcode mapped to number of times it was found.
+
+    Description:
+        In this function we parse the FASTQ file.
+        In the case of bs3 (BarSeq3) we have a 
+        key called 'index2' which is mapped 
+        to a DNA sequence of length 6, and 'index2At'
+        which points to the expected location of index2
+        within a read.
+        If, within a read, we don't find index2 at
+        its expected location, then that's noted as an error, 
+        and we add a number to the variable 'nWrongIndex2'.
+
+
     """
 
     nWrongPrePos = 0
     nWrongIndex2 = 0
+    nPostSeqUsed = 0
     nReads = 0
     nMulti = 0 # count with prefix identified
     nOff = {i:0 for i in range(18,24)}
-    codes = {} #barcode maps to number of times barcode is seen,
-    lenPrefix = len(inp_d["prefix"])
+    codes = {} #barcode maps to number of times seen
 
     # FastQ File Handle
     FQ_FH = open(inp_d['fastq_fp'], "r")
@@ -856,7 +910,8 @@ def ParseFastqInput(inp_d):
         break_line = FQ_FH.readline().rstrip()
         quality = FQ_FH.readline().rstrip()
 
-        CheckRead(read_name, seq, break_line, quality, inp_d['fastq_fp'], line_num)
+        CheckRead(read_name, seq, break_line, quality, 
+                  inp_d['fastq_fp'], line_num)
         line_num += 4
 
         if inp_d['maxReads'] is not None and (
@@ -866,33 +921,36 @@ def ParseFastqInput(inp_d):
         # Index 2 is a DNA sequence of length 6 - Only exists with bs3
         # protocol under certain conditions
         if "index2" in inp_d:
-            part = seq[inp_d['index2At'] -1: inp_d['index2At'] - 1 + len(inp_d['index2'])]
+            part = seq[inp_d['index2At']: inp_d['index2At'] + len(inp_d['index2'])]
             if part != inp_d['index2']:
                 nWrongIndex2 += 1
                 c_readname = FQ_FH.readline()
                 continue
 
+        nMulti += 1
+        '''
         if "index_name" in inp_d:
             iPrefix = 0
         else:
+            # Only if not multiplexed
             iPrefix = FindPrefix(seq, inp_d['prefix'], 
-                    inp_d['debug']) # returns match (int) or -1
+                        inp_d['debug']) # returns match (int) or -1
+        '''
 
-        if iPrefix < 0:
-            # No prefixes found, skip this iteration of loop.
-            c_readname = FQ_FH.readline()
-            continue 
 
-        nMulti += 1
+        #In most cases, index_name is used, so iPrefix is 0, 
+        # so we get nLeading = 0, indexseq = "", prefixName is index_name
 
-        #In most cases, index_name is not None, so iPrefix is 0, so we get nLeading = 0 
-        # indexseq = "", prefixName is index name
-        nLeading, indexseq, prefixName = inp_d['prefix'][iPrefix]
+        nLeading, indexseq, prefixName = [0, "", inp_d["index_name"]]
 
-        offset = nLeading + len(indexseq)
+        # Meaning that offset = nLeading + len("") = 0 + 0 = 0
+        #offset = nLeading + len(indexseq)
+
         # barcode is str barcode, off is distance from start of barcode to start of postseq 
         # i.e. distance between end of preseq and beginning of postseq.
-        barcode, off = FindBarcode(seq, quality, offset, inp_d)
+        barcode, off, postseqIgnored = FindBarcode(seq, quality, inp_d)
+        if not postseqIgnored:
+            nPostSeqUsed += 1
 
         if (barcode is None and off is not None and off >=0):
             nWrongPrePos += 1
@@ -917,8 +975,10 @@ def ParseFastqInput(inp_d):
             c_readname = FQ_FH.readline()
             continue
 
-        codes = UpdateCodesiPrefix(codes, barcode, 
-                iPrefix, lenPrefix) # line 226 perl
+        if barcode in codes:
+            codes[barcode] += 1
+        else:
+            codes[barcode] = 1
 
         if nReads % 1000000 == 0:
             print("Read {} Reads so far".format(nReads))
@@ -934,9 +994,10 @@ def ParseFastqInput(inp_d):
 
     FQ_FH.close()
 
-
+    
     inp_d['nWrongPrePos'] = nWrongPrePos
     inp_d['nWrongIndex2'] = nWrongIndex2
+    inp_d['nPostSeqUsed'] = nPostSeqUsed
     inp_d['nReads'] = nReads
     inp_d['nMulti'] = nMulti
     inp_d['nOff'] = nOff
@@ -951,12 +1012,16 @@ def ParseFastqInput(inp_d):
 
 
 
+# Deprecated!
 # seq is DNA sequence (str) 
 # indexes is a list of lists, internal lists are [nLeading, indexseq, name],
 #   where nLeading is an int, indexseq is str, name is str 
 # debug in inp_d, True or False 
+# Deprecated!
 def FindPrefix(seq, indexes, debug):
     """
+    Note this function is only run if the FASTQ file
+    isn't multiplexed and all are in one.
     Args:
         seq: (str) DNA sequence (from FASTQ)
         indexes: list<list> internal lists are [nLeading, indexseq, name]
@@ -964,7 +1029,8 @@ def FindPrefix(seq, indexes, debug):
                 the list is the same as the variable 'prefix'
         debug: (bool) 
     Returns:
-        
+       An int, the index within the list of indexes which
+       matches this current index.
     """
     matches = []
     for i in range(len(indexes)):
@@ -984,7 +1050,7 @@ def FindPrefix(seq, indexes, debug):
 
 
 
-def UpdateCodesiPrefix(codes_dict, barcode, iPrefix, lenPrefix):
+def UpdateCodesiPrefix(codes_dict, barcode):
     """
     Args:
         codes_dict: (dict)
@@ -995,17 +1061,8 @@ def UpdateCodesiPrefix(codes_dict, barcode, iPrefix, lenPrefix):
                         is being updated
                     
         barcode: (str)
-        iPrefix: int The index (location) of a DNAindex value from the indexes file
-            within the prefix list
-        lenPrefix: (int) Total length of prefix list
     """
 
-    if barcode in codes_dict:
-        codes_dict[barcode][iPrefix] += 1
-    else:
-        barcode_list = [0] * lenPrefix 
-        barcode_list[iPrefix] += 1
-        codes_dict[barcode] = barcode_list
 
     return codes_dict 
 
@@ -1080,26 +1137,30 @@ def IndexFileToPrefixInfo(index_fp):
             }
 
 
-#seq str
+#seq str - 
 #quality str
 #offset int, usually 0
-def FindBarcode(seq, quality, offset, inp_d):
+def FindBarcode(seq, quality, inp_d, offset=0):
     """
     Args:
         seq: (str) Sequence from FASTQ Read
         quality: (str) Quality from FastQ Read
-        offset: (int) Represents location after nLeading and index sequence
         inp_d: (dict) Required keys:
             preseq: (str) DNA Sequence 
+            postseq: (str) DNA Sequence
             nPreExpectedMin: (int)
             nPreExpectedMax: (int)
             minQuality: (int)
             debug: (bool)
+        offset: (int) Represents location after nLeading and index sequence
 
     preseq often: 'CAGCGTACG'
     postseq often: 'AGAGACCTC'
 
     How function works:
+        Note: We assume FASTQs are demultiplexed so that the important
+            part of the sequence is the sequence given, meaning that
+            offset = 0.
         We get useful part of sequence and quality by taking original sequence and 
         starting from location after leading n's and index sequence.
         Then we find the index of presequence defined 
@@ -1112,7 +1173,7 @@ def FindBarcode(seq, quality, offset, inp_d):
         is too short and we don't get a full barcode, then we return 
         [None, None]. 
         Then we check for the postsequence in the true sequence. If the length 
-        of the useful sequence is less than the sum of the barcode and the
+        of the useful sequence is less than the sum of the barcode (20) and the
         presequence and the index of the presequence and the postsequence, we 
         try a shorter postsequence of length 4, if that's not found we
         claim it's too short, make postsequence "" and continue with function.
@@ -1122,6 +1183,12 @@ def FindBarcode(seq, quality, offset, inp_d):
         postsequence is nothing then foundEnd is automatically 20, 
         if it's not nothing , then function returns 
         [None, None].
+
+    Returns:
+        barcode (str): String of length 20, the barcode
+        foundEnd (int): Difference between preseq and postseq
+        postseqIgnored (bool): Whether or not we actually used postseq.
+                                True means not used.
 
 
     """
@@ -1133,16 +1200,18 @@ def FindBarcode(seq, quality, offset, inp_d):
     # The following gives -1 if not found, index of beginning if found
     preseq_pos = seq2.find(preseq) 
 
-    if not (preseq_pos != -1 and preseq_pos >= inp_d['nPreExpectedMin'] and \
-            preseq_pos <= inp_d['nPreExpectedMax']):
-        if inp_d['debug']:
-            warning_str = "seq2 {} has invalid index-of-preseq:  {}\n".format(
-                seq2, preseq_pos)
-            #inp_d["report_dict"]["warnings"].append(warning_str)
-            logging.warning(warning_str)
-        if preseq_pos >= 0:
-            return [None, preseq_pos] # report that spacing was wrong
-        return [None, None]
+    #Bad cases 
+    if preseq_pos == -1 or preseq_pos < inp_d['nPreExpectedMin'] or \
+            preseq_pos > inp_d['nPreExpectedMax']:
+        if preseq_pos != -1:
+            if inp_d['debug']:
+                warning_str = "seq2 {} has invalid index-of-preseq:  {}\n".format(
+                    seq2, preseq_pos)
+                #inp_d["report_dict"]["warnings"].append(warning_str)
+                logging.warning(warning_str)
+            if preseq_pos >= 0:
+                return [None, preseq_pos, True] # report that spacing was wrong
+        return [None, None, True]
    
     
     #Note: Below line does not throw error if end index > len(seq2)
@@ -1156,11 +1225,9 @@ def FindBarcode(seq, quality, offset, inp_d):
                 seq2, barcode)
             #inp_d["report_dict"]["warnings"].append(warning_str)
             logging.warning(warning_str)
-            return [None, None]
+            return [None, None, True]
     
     postseqUsed = inp_d['postseq']
-    if inp_d['minQuality'] == 0:
-        postseqUsed = ""
 
 
     if len(seq2) < preseq_pos + len(preseq) + 20 + len(postseqUsed):
@@ -1182,7 +1249,9 @@ def FindBarcode(seq, quality, offset, inp_d):
     foundEnd = -1
     if postseqUsed == "":
         foundEnd = 20
+        postseqIgnored = True
     else:
+        postseqIgnored = False
         #check 20 first in case end of barcode matches post-seq (AGAG issue)
         for off in [20,19,21,18,22]:
             start_slice = preseq_pos + len(preseq) + off
@@ -1196,7 +1265,7 @@ def FindBarcode(seq, quality, offset, inp_d):
                 seq2, barcode)
             #inp_d["report_dict"]["warnings"].append(warning_str)
             logging.warning(warning_str)
-        return [None,None]
+        return [None,None, True]
 
 
     if inp_d['minQuality'] > 0:
@@ -1216,9 +1285,10 @@ def FindBarcode(seq, quality, offset, inp_d):
                          + "{}\n".format(score, barcode, seq2)
                     #inp_d["report_dict"]["warnings"].append(warning_str)
                     logging.warning(warning_str)
-                return [None,None]
+                return [None,None, True]
 
-    return [barcode, foundEnd]
+    
+    return [barcode, foundEnd, postseqIgnored]
 
 def CheckRead(read_name, seq, break_line, quality, fastq_fp, line_num):
     """

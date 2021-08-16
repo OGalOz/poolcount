@@ -115,6 +115,7 @@ def get_index_val(fq_fp, outputs_dir ):
             Last 3 keys not in use
     """
 
+    # Could use os.path.basename (?)
     fn = fq_fp.split('/')[-1]
     out_fp_prefix = fn.split('.')[0]
     
@@ -131,7 +132,7 @@ def get_index_val(fq_fp, outputs_dir ):
         index_type = "S"
         index = match_s[0][1:-1]
     else:
-        raise Exception("Could not recognize index: not in IT### or S# form: " \
+        raise Exception("Could not recognize index: file name not in IT### or S# form: " \
                 + "{}".format(fn))
 
 

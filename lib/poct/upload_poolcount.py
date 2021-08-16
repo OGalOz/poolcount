@@ -15,6 +15,7 @@ def upload_poolcount_to_KBase(up):
         genes_table_ref (str),
         fastq_refs (list),
         poolcount_description (str),
+        protocol_type (str)
         workspace_id (str),
         ws_obj (obj),
         poolcount_fp (str),
@@ -60,6 +61,7 @@ def upload_poolcount_to_KBase(up):
         "utc_created": str(date_time),
         "set_name": up["set_name"],
         "num_lines": str(num_lines),
+        "protocol_used": up["protocol_type"],
         "related_genome_ref": up["genome_ref"],
         "related_organism_scientific_name": get_genome_organism_name(
             up["genome_ref"], up["ws_obj"]
