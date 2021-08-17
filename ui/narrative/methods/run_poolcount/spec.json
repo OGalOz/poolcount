@@ -115,69 +115,7 @@
             }
         },
         {
-            "id": "preseq",
-            "optional": false,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ "None" ],
-            "field_type": "textarea",
-            "textarea_options" : {
-                "n_rows" : 1
-
-            }
-        },
-        {
-            "id": "postseq",
-            "optional": false,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ "None" ],
-            "field_type": "textarea",
-            "textarea_options" : {
-                "n_rows" : 1
-
-            }
-        },
-        {
-            "id": "test_local_bool",
-            "optional": false,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ false ],
-            "field_type" : "dropdown",
-            "dropdown_options":{
-                "options": [{
-                    "value": false,
-                    "display": "False"
-                },
-                {
-                    "value": true,
-                    "display": "True"
-                }
-                ]}
-
-        },
-        {
             "id": "doOff1",
-            "optional": false,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ true ],
-            "field_type" : "dropdown",
-            "dropdown_options":{
-                "options": [{
-                    "value": false,
-                    "display": "False"
-                },
-                {
-                    "value": true,
-                    "display": "True"
-                }
-                ]}
-
-        },
-        {
-            "id": "save_ignore_bool",
             "optional": false,
             "advanced": true,
             "allow_multiple": false,
@@ -215,7 +153,7 @@
 
         },
         {
-        "id": "max_Reads",
+        "id": "maxReads",
             "optional": false,
             "text_options" : {
                 "validate_as" : "int"
@@ -272,40 +210,26 @@
                     "input_parameter": "protocol_type",
                     "target_property": "protocol_type"
                 }, {
-                    "input_parameter": "preseq",
-                    "target_property": "preseq"
-                }, {
-                    "input_parameter": "postseq",
-                    "target_property": "postseq"
-                }, {
                     "input_parameter": "doOff1",
                     "target_property": "doOff1"
-                },
-                {
-                    "input_parameter": "save_ignore_bool",
-                    "target_property": "save_ignore_bool"
                 },
                 {
                     "input_parameter": "minQuality",
                     "target_property": "minQuality"
                 },
-
                 {
                     "input_parameter": "debug",
                     "target_property": "debug"
                 },
                 {
-                    "input_parameter": "max_Reads",
-                    "target_property": "max_Reads"
+                    "input_parameter": "maxReads",
+                    "target_property": "maxReads"
                 },
                 {
                     "input_parameter": "output_name",
                     "target_property": "output_name"
-                },
-                {
-                    "input_parameter": "test_local_bool",
-                    "target_property": "test_local_bool"
                 }
+                
             ],
             "output_mapping": [
                 {

@@ -122,7 +122,10 @@ def RunMultiCodes(MC_d):
 
     # This writes the closest variants to barcodes and the differences
     # in counts between them
-    vrs = WriteOutCloseGetOffBy1(vrs)
+    if vrs['doOff1']:
+        vrs = WriteOutCloseGetOffBy1(vrs)
+    else:
+        vrs['offby1'] = {}
 
     # RETURN TO USER --------------------
 
@@ -275,56 +278,52 @@ def WriteOutCloseGetOffBy1(inp_d):
     """
     offby1 = {} # barcode => 1 for likely off-by-1 errors
 
-    #doOff1 is a bool
-    if inp_d['doOff1']:
+    out_close_fp = inp_d["out_prefix"] + ".close"
+    OUTCLOSE = open(out_close_fp, "w")
+    OUTCLOSE.write("\t".join(['code1', 'count1', 'code2', 'count2']) + "\n")
 
-        out_close_fp = inp_d["out_prefix"] + ".close"
-        OUTCLOSE = open(out_close_fp, "w")
-        OUTCLOSE.write("\t".join(['code1', 'count1', 'code2', 'count2']) + "\n")
+    nCases = 0
+    nOff1Reads = 0
+    codes = inp_d['codes']
+    for code in codes.keys():
+        count = codes[code]
+        variants = GetVariants(code) # variants is a list
+        for variant in variants:
+            if variant in codes: 
+                n1 = count
+                n2 = codes[variant]
+                out_close_str = "\t".join([str(code),
+                    str(n1), str(variant), str(n2)]) + "\n"
+                OUTCLOSE.write(out_close_str)
+                if n1 < n2:
+                    offby1[code] = 1
+                    nOff_val = n1
+                else:
+                    offby1[variant] = 1
+                    nOff_val = n2
+                nCases += 1
+                nOff1Reads += nOff_val
 
-        nCases = 0
-        nOff1Reads = 0
-        codes = inp_d['codes']
-        for code in codes.keys():
-            count = codes[code]
-            variants = GetVariants(code) # variants is a list
-            for variant in variants:
-                if variant in codes: 
-                    n1 = count
-                    n2 = codes[variant]
-                    out_close_str = "\t".join([str(code),
-                        str(n1), str(variant), str(n2)]) + "\n"
-                    OUTCLOSE.write(out_close_str)
-                    if n1 < n2:
-                        offby1[code] = 1
-                        nOff_val = n1
-                    else:
-                        offby1[variant] = 1
-                        nOff_val = n2
-                    nCases += 1
-                    nOff1Reads += nOff_val
-
-        OUTCLOSE.close()
+    OUTCLOSE.close()
 
 
-        if 20 in inp_d['nOff']:
-            # Almost always should be the case
-            denominator = inp_d['nOff'][20]
-            if denominator == 0:
-                logging.warning("Warning, no barcodes length 20 found.")
-                denominator = 1
-        else:
+    if 20 in inp_d['nOff']:
+        # Almost always should be the case
+        denominator = inp_d['nOff'][20]
+        if denominator == 0:
+            logging.warning("Warning, no barcodes length 20 found.")
             denominator = 1
+    else:
+        denominator = 1
 
-        fOff1 = str(float(nOff1Reads)/float(denominator))
+    fOff1 = str(float(nOff1Reads)/float(denominator))
 
-        logging.info("Wrote .close to " + out_close_fp)
-        
-        # int, int, float
-        inp_d['nCases'] = nCases
-        inp_d['nOff1Reads'] = nOff1Reads
-        inp_d['fOff1'] = fOff1
-
+    logging.info("Wrote .close to " + out_close_fp)
+    
+    # int, int, float
+    inp_d['nCases'] = nCases
+    inp_d['nOff1Reads'] = nOff1Reads
+    inp_d['fOff1'] = fOff1
     inp_d['offby1'] = offby1
 
     return inp_d

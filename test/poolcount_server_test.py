@@ -133,9 +133,9 @@ class poolcountTest(unittest.TestCase):
         # added
         save_ignore_bool = True
         # added
-        max_Reads = -1 
+        maxReads = -1 
         # added
-        minQuality = 0
+        minQuality = 10
         debug = False
         # 'custom' (requires preseq/postseq) or 'dntag' (requires index_file)
         # or 'base' or 'bs3' or 'n25' 
@@ -153,15 +153,12 @@ class poolcountTest(unittest.TestCase):
                 "KB_PoolCount_Bool": "yes",
                 "poolcount_description": "Testing",
                 "output_name": set_output_name,
-                "test_local_bool": test_local_bool,
                 "save_ignore_bool": save_ignore_bool,
-                "max_Reads": max_Reads,
+                "maxReads": maxReads,
                 "minQuality": minQuality,
                 "debug": debug,
                 "protocol_type": protocol_type,
-                "doOff1": doOff1,
-                "preseq": preseq,
-                "postseq": postseq
+                "doOff1": doOff1
             })
         logging.info(ret)
 

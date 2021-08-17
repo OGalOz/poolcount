@@ -6,7 +6,7 @@ import os, shutil, json
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.WorkspaceClient import Workspace
-from poct.parse_and_test_params import parse_and_check_params
+from poct.parse_and_test_params import parse_and_check_params, get_FullRun_d
 from poct.downloader import download_fastq_and_prepare_mc, download_poolfile
 from poct.FullProgram import PC_RunAll  
 from poct.pool_util import clean_output_dir
@@ -60,16 +60,16 @@ class poolcount:
         
         Args:
             params:
+                ['workspace_name']: self.wsName,
                 "poolfile_ref": pool_ref (str),
                 "fastq_files": list<fastq_refs (str)>,
                 "genome_ref": genome_ref (str), 
                 "KB_PoolCount_Bool": "yes"/"no" - create a poolcount file?
                 "poolcount_description": (str) A text description of the pool file,
                 "output_name": (str),
-                "test_local_bool": test_local_bool
-                ['workspace_name']: self.wsName,
-                "save_ignore_bool": bool,
-                "max_Reads": int or None,
+                ## "test_local_bool": test_local_bool Deprecated
+                ## "save_ignore_bool": bool, Deprecated
+                "maxReads": int or None,
                 "minQuality": int,
                 "debug": bool,
                 "protocol_type": str,
@@ -145,107 +145,12 @@ class poolcount:
         mc_run_num = len(mc_run_list)
         logging.info("Total MultiCodes Runs: {}".format(mc_run_num))
 
-        """
+        FullRun_d = get_FullRun_d(parsed_params_dict, MC_dir, fastq_dicts_list,
+                                  poolcount_prefix, poolfile_path,
+                                  main_HTML_fp)
 
-        MC_config_d: (d) MultiCodes config json file path. MC_cgf_d must contain:
-            out_prefix: str,
-            maxReads: int or None, 
-            index_name: str,
-            minQuality: int, 
-            debug: bool,
-            protocol_type: str,
-            bs3_fp: File path to barseq3.index2 file
-            doOff1: bool, 
-            MC_seqs:
-                    dnt_pre: GTCTCGTAG,
-                    dnt_post: CGATGAATT,
-                    bs_pre: CAGCGTACG,
-                    bs_post: AGAGACCTC
-            fastq_fp: str 
-        fastq_dicts_list (list<fq_d>)
-            fq_d (dict):
-                fq_fp (str): fq_fp,
-                index_name (str): index,
-                debug (bool): False,
-                index_type: index_type,
-                index_val: index,
-                out_fp_prefix: os.path.join(outputs_dir, out_fp_prefix),
-        CBS_config_d: (d) CombineBarSeq config json file path. CBS_cfg_d contains:
-            out_prefix_fp: (s) Output PoolCount/Colsum/Ignore File to write to
-            pool_fp: (s) Input pool file to parse
-            codes_fp_l: list<code_fp> List of all codes filepaths
-                code_fp: (str) Path to codes file
-            save_ignore: (b) If True, we save ignored lines to out_prefix_fp.ignored 
-        HTML_op_fp: (s) Path to write HTML file to
-        """
-        # Input documented at poct.FullProgram.PC_RunAll
-        FullRun_d = {
-            "MC_config_d": {
-                "output_dir": MC_dir,
-                "bs3_fp": '/kb/module/lib/poolcount/barseq3.index2',
-                "maxReads": parsed_params_dict["max_Reads"],
-                "minQuality": parsed_params_dict["minQuality"],
-                "debug": parsed_params_dict["debug"],
-                "protocol_type": parsed_params_dict["protocol_type"], 
-                "doOff1": parsed_params_dict["doOff1"], 
-                "MC_seqs": {
-                        "dnt_pre": 'GTCTCGTAG',
-                        "dnt_post": 'CGATGAATT',
-                        "bs_pre": 'CAGCGTACG',
-                        "bs_post": 'AGAGACCTC'
-                }
-            },
-            "fq_index_list": fastq_dicts_list,
-            "CBS_config_d": { 
-                'out_prefix_fp': poolcount_prefix, 
-                'pool_fp': poolfile_path, 
-                'save_ignore': parsed_params_dict["save_ignore_bool"] 
-            },
-            "HTML_op_fp": main_HTML_fp
-        }
         # Running all programs:
         PC_RunAll(FullRun_d)
-
-
-        """
-        #multicodes_HTML_list = []
-        # Running MultiCodes
-        codes_fp_list = []
-        for i in range(mc_run_num):
-            mc_run_dict = mc_run_list[i]
-            mc_out_dict = run_multi_codes_from_dict(mc_run_dict)
-            logging.info("Completed {}/{} Multi Codes Runs".format(
-            i+1, mc_run_num))
-            report_dict["multi_codes_" + str(i+1)] = mc_out_dict["mc_report_dict"]
-            report_str += "\n---Multi Codes {} Report----\n\n{}".format(i+1,mc_out_dict[
-                "mc_report_str"])
-            report_str += "\n---Multi Codes {} Warnings---\n\n{}".format(i+1,
-                    "\n".join(mc_out_dict["mc_report_dict"]["warnings"]))
-            codes_fp_list.append(mc_out_dict['codes_file'])
-
-
-        # Running Combine BarSeq
-        cmbarseq_out_prefix = os.path.join(outputs_dir, 
-                parsed_params_dict['output_name'])
-        #combine barseq dict: 
-        cmb_bs_dict = {"pool": poolfile_path, 
-                "codes_filepaths_list": codes_fp_list,
-                "main_out_prefix": cmbarseq_out_prefix }
-        logging.info("Running Combine Bar Seq")
-        cmb_bs_out = run_combine_barseq_from_dict(cmb_bs_dict)
-        report_dict["combine_bar_seq_report_dict"] = cmb_bs_out["cbs_report_dict"] 
-
-        # We have the poolcount filepath here: based on output string
-        poolcount_fp = cmb_bs_out['poolcount']
-        poolcount_fn = os.path.basename(poolcount_fp)
-
-        logging.info("WROTE POOLCOUNT FILE TO " + poolcount_fp)
-        report_str += "\n---Combine BarSeq Report ---\n\n{}".format(cmb_bs_out[
-            "cbs_report_str"])
-        report_str += "\n---Combine BarSeq Warnings---\n\n{}".format(
-                    "\n".join(cmb_bs_out["cbs_report_dict"]["warnings"]))
-
-        """
 
 
         # Now we upload the poolcount file to KBase to make a PoolCount Object
@@ -291,9 +196,9 @@ class poolcount:
         dir_link_dict = {
             'shock_id': dir_zip_shock_id,
             'name': parsed_params_dict['output_name'] + ".zip",
-            'label': 'RbTnSeqPoolCount_dir',
+            'label': 'RBTnSeqPoolCount_dir',
             'description': 'The folder containing outputs from this app'
-                }
+        }
 
 
 

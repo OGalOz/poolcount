@@ -67,40 +67,19 @@ parameters :
           What is the indexing protocol you are using? BarSeq3?
         long-hint : |
           This method defines how the program looks for barcodes.
-    max_Reads :
+    maxReads :
         ui-name : |
           Max Reads
         short-hint : |
           The highest number of reads to process within a FASTQ file
         long-hint : |
           The highest number of reads to process within a FASTQ file
-    preseq :
-        ui-name : |
-          Pre-sequence
-        short-hint : |
-          (Custom) If you are using a custom protocol, write the pre-barcode sequence
-        long-hint : |
-          (Custom) If you are using a custom protocol, write the pre-barcode sequence
-    postseq :
-        ui-name : |
-          Post-sequence
-        short-hint : |
-          (Custom) If you are using a custom protocol, write the post-barcode sequence
-        long-hint : |
-          (Custom) If you are using a custom protocol, write the post-barcode sequence
     doOff1 : 
         ui-name : |
           Off by 1?
         short-hint : |
           Compute off by 1 barcodes
         long-hint : |
-    save_ignore_bool :
-        ui-name : |
-          Save Ignored?
-        short-hint : |
-          Save the ignored barcodes in a file?
-        long-hint : |
-          Save the ignored barcodes in a file?
     minQuality :
         ui-name : |
           Min-Quality
@@ -123,13 +102,6 @@ parameters :
         long-hint : |
             This name must match the set name on your experiments file.
             No requirements besides no special characters or spaces. 
-    test_local_bool :
-        ui-name : |
-            Developer testing
-        short-hint : |
-            Don't change this
-        long-hint : |
-            Always should be false
 description : |
     <p>Part of RBTnSeq Analysis involving conversion of </p>
     <p>Fastq reads and pool file into poolcounts file. </p>

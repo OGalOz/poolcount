@@ -2,7 +2,7 @@
 #python3
 # This program is a loose translation of Morgan Price's combineBarSeq.pl to 
 #   python. Important inputs to this program are the pool_file and the 
-#   codesfiles. Outputs are poolcount and colsum [and ignore (if save_ignore=True)]
+#   codesfiles. Outputs are poolcount and colsum [and ignore for ignored barcodes] 
 
 import os
 import sys
@@ -22,7 +22,6 @@ def RunCombineBarSeq(CBS_d):
             pool_fp: (s) Input pool file to parse
             codes_fp_l: list<code_fp> List of all codes filepaths
                 code_fp: (str) Path to codes file
-            save_ignore: (b) If True, we save ignored lines to out_prefix_fp.ignored 
     Outputs:
         ctg_d: (d)
             Indexes: i
@@ -280,7 +279,6 @@ def ProcessAllCodeFiles(vrs):
             pool_d: (d)
                 rcbarcode (s) => [barcode (str), scaffold (str), strand (str), pos (i)]
             out_prefix_fp: (str) Filepath prefix PoolCount, Colsum, Ignore
-            save_ignore: (b)
 
     Returns:
         cds_d:
@@ -339,20 +337,18 @@ def ProcessAllCodeFiles(vrs):
     }
 
 
-    if vrs["save_ignore"]:
-        # We write ignored barcodes to this file
-        ignore_fp = vrs["out_prefix_fp"] + ".ignore"
-        IgnoreFH = open(ignore_fp, "w")
-        cds_d["IgnoreFH"] = IgnoreFH
+    # We write ignored barcodes to this file
+    ignore_fp = vrs["out_prefix_fp"] + ".ignore"
+    IgnoreFH = open(ignore_fp, "w")
+    cds_d["IgnoreFH"] = IgnoreFH
 
     codes_reports_d = {}
     for cd_fp in vrs["codes_fp_l"]:
         cds_d, cf_report_d= ProcessCodeFile(cd_fp, cds_d, vrs["pool_d"])
         codes_reports_d[cd_fp] = cf_report_d
 
-    if vrs["save_ignore"]:
-        IgnoreFH.close()
-        logging.info("Wrote ignore to " + ignore_fp)
+    IgnoreFH.close()
+    logging.info("Wrote ignore to " + ignore_fp)
 
     return [cds_d, codes_reports_d]
 
@@ -671,7 +667,6 @@ def CheckInputs(CBS_d):
             pool_fp: (s) Input pool file to parse
             codes_fp_l: list<code_fp> List of all codes filepaths
                 code_fp: (str) Path to codes file
-            save_ignore: (b) If True, we save ignored lines to out_prefix.ignored 
 
     Description:
         First we check if directory in which we write the poolcount file and others 
@@ -693,8 +688,6 @@ def CheckInputs(CBS_d):
     for x in CBS_d["codes_fp_l"]:
         if not os.path.exists(x):
             raise Exception("Input .codes file {} does not exist".format(x))
-    if not isinstance(CBS_d["save_ignore"], bool):
-        raise Exception("save_ignore value must be bool.")
 
     return CBS_d
 

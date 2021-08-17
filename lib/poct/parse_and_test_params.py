@@ -22,7 +22,7 @@ def parse_and_check_params(params):
             "test_local_bool": test_local_bool
             ['workspace_name']: self.wsName,
             "save_ignore_bool": bool,
-            "max_Reads": int or -1 or None,
+            "maxReads": int or -1 or None,
             "minQuality": int,
             "debug": bool,
             "protocol_type": str,
@@ -33,7 +33,7 @@ def parse_and_check_params(params):
 
     for p in ["poolfile_ref", "fastq_files", "KB_PoolCount_Bool",
             "poolcount_description", "genome_ref", "output_name",
-            "test_local_bool", "save_ignore_bool", "max_Reads",
+            "maxReads",
             "minQuality", "debug", "protocol_type", "doOff1"]:
         if p not in params:
             raise Exception(p + " not found in params")
@@ -59,11 +59,13 @@ def parse_and_check_params(params):
     parsed_params_dict = {x:params[x] for x in params.keys()}
     # Updating certain keys
     parsed_params_dict["KB_PoolCount_Bool"] =  kb_pc_bool
-    parsed_params_dict["max_Reads"] = params["max_Reads"] if params["max_Reads"] not in [-1, "-1"] else None
+    parsed_params_dict["maxReads"] = params["maxReads"] if params["maxReads"] not in [-1, "-1"] else None
+    '''
     for x in ["preseq", "postseq"]:
         if x in parsed_params_dict:
             if parsed_params_dict[x] == "None":
                 parsed_params_dict[x] = None
+    '''
 
 
     return parsed_params_dict
@@ -87,6 +89,71 @@ def check_pool_file(pool_fp):
         raise Exception
 
     return 0
+
+def get_FullRun_d( parsed_params_dict, MC_dir, fastq_dicts_list,
+                  poolcount_prefix, poolfile_path,
+                  main_HTML_fp):
+
+    """
+
+    FullRun_d explanation:
+
+    MC_config_d: (d) MultiCodes config json file path. MC_cgf_d must contain:
+        out_prefix: str,
+        maxReads: int or None, 
+        index_name: str,
+        minQuality: int, 
+        debug: bool,
+        protocol_type: str,
+        bs3_fp: File path to barseq3.index2 file
+        doOff1: bool, 
+        MC_seqs:
+                dnt_pre: GTCTCGTAG,
+                dnt_post: CGATGAATT,
+                bs_pre: CAGCGTACG,
+                bs_post: AGAGACCTC
+        fastq_fp: str 
+    fastq_dicts_list (list<fq_d>)
+        fq_d (dict):
+            fq_fp (str): fq_fp,
+            index_name (str): index,
+            debug (bool): False,
+            index_type: index_type,
+            index_val: index,
+            out_fp_prefix: os.path.join(outputs_dir, out_fp_prefix),
+    CBS_config_d: (d) CombineBarSeq config json file path. CBS_cfg_d contains:
+        out_prefix_fp: (s) Output PoolCount/Colsum/Ignore File to write to
+        pool_fp: (s) Input pool file to parse
+        codes_fp_l: list<code_fp> List of all codes filepaths
+            code_fp: (str) Path to codes file
+    HTML_op_fp: (s) Path to write HTML file to
+    """
+    # Input documented at poct.FullProgram.PC_RunAll
+    FullRun_d = {
+        "MC_config_d": {
+            "output_dir": MC_dir,
+            "bs3_fp": '/kb/module/lib/poolcount/barseq3.index2',
+            "maxReads": parsed_params_dict["maxReads"],
+            "minQuality": parsed_params_dict["minQuality"],
+            "debug": parsed_params_dict["debug"],
+            "protocol_type": parsed_params_dict["protocol_type"], 
+            "doOff1": parsed_params_dict["doOff1"], 
+            "MC_seqs": {
+                    "dnt_pre": 'GTCTCGTAG',
+                    "dnt_post": 'CGATGAATT',
+                    "bs_pre": 'CAGCGTACG',
+                    "bs_post": 'AGAGACCTC'
+            }
+        },
+        "fq_index_list": fastq_dicts_list,
+        "CBS_config_d": { 
+            'out_prefix_fp': poolcount_prefix, 
+            'pool_fp': poolfile_path, 
+        },
+        "HTML_op_fp": main_HTML_fp
+    }
+
+    return FullRun_d
 
 
 # op_name string, (output_name)

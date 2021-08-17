@@ -1,5 +1,17 @@
 TD:
 
+Inputs:
+   doOff1: boolean, Decides whether we write to 'close' file - which
+            finds close barcodes (variants) for the barcodes.
+   maxReads: Upper limit on the number of reads per FASTQ file, should only be used to test
+             if FASTQ files work early on.
+   minQuality: minimum Quality for all nucleotides within a read for the read to be used 
+                and converted to a barcode. Default set to 10. If you set minQuality to 0
+                we also don't estimate diversity nor bias (no basic statistical tests).
+                Additionally, if minQuality is set to 0, then we don't check if quality
+                scores make sense.
+   debug: Print out debugging information - doesn't change program besides more reporting.
+
 
 
 The program is divided into two main scripts:
@@ -73,7 +85,17 @@ mean different things -
     was seen per index, and note whether or not that
     barcode is found in the poolfile. Then we write a file
     that takes all the barcodes in the poolfile and 
-    writes out the counts per index.
+    writes out the counts per index. Note that the poolcounts
+    have the same barcodes as in the poolfile in the same
+    order. Also, note that the barcodes in MultiCodes are
+    checked against the reverse complement barcodes from
+    the poolfile, and not the barcodes themselves
+    (TnSeq and BarSeq read the barcode in different directions. 
+    In the the pool file, "barcode" is what is seen during TnSeq, 
+    and "rcbarcode" is what is seen during BarSeq).
+
+
+
 
 
 
