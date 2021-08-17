@@ -1,0 +1,28 @@
+
+This script analyzes multiplexed random barcode sequences, such as
+nATCACGAG GTCGACCTGCAGCGTACG 20N AGAGACCTCGTGGACATCAGATC
+for primer nATCACGAG (nLeading=1, indexseq=ATCACGAG), where the 20 Ns are the barcode
+
+or, if -dntag is specified,
+nATCACGAG CGGTGTCGGTCTCGTAG 20N CGATGAATTCGAGCTCGTT
+
+or, if the index is specified, there is no multiplexing, and the read is
+nnnnn GTCGACCTGCAGCGTACG 20N AGAGACC (where the leading ns are random and are ignored)
+
+or, if -preseq -postseq -nPreExpected are all used, it expects a read of the form
+   nPreExpected characters (any, although this includes the multiplexing tag unless -index is used)
+   preseq
+   barcode
+   postseq
+
+For a barcode to be counted, the preseq (9 nt upstream of the barcode)
+much match exactly; the postseq (9 nt downstream of the barcode) much
+also be correct unless minQuality = 0 (in which case the post-sequence
+is not checked and there is no guarantee that the barcode is the
+correct length).
+
+If -minQuality > 0, then it also tries to estimate the diversity of the sample,
+and the out_prefix.good file lists the "good" barcodes (not off-by-1 from
+a more abundant barcode and with at least two reads). The "match10"
+field shows if the first 10 or last 10 nucleotides of the barcode match
+to a much-more abundant barcode; these are likely chimeras.
