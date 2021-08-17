@@ -20,7 +20,8 @@ def PC_RunAll(inp_d):
     inp_d: (d) Must contain
 
         MC_config_d: (d) MultiCodes config json file path. MC_cgf_d must contain:
-            out_prefix: str,
+            output_dir: str,
+            out_prefix: str
             maxReads: int or None, 
             index_name: str,
             minQuality: int, 
@@ -34,12 +35,14 @@ def PC_RunAll(inp_d):
                     bs_pre: CAGCGTACG,
                     bs_post: AGAGACCTC
             fastq_fp: str 
-        fq_index_list: (l) list<fq_ind_d> where
-            fq_ind_d: (d) FASTQ INDEX DICT
-                fq_fp: (str) Fastq file path
-                [index_name] OR (str)
-                [indexfile_fp] (str) 
-                debug:
+        fq_index_list: (l) (list<fq_ind_d>)
+            fq_ind_d (dict):
+                fq_fp (str): fq_fp,
+                index_name (str): index,
+                debug (bool): False,
+                index_type: index_type,
+                index_val: index,
+                out_fp_prefix: os.path.join(outputs_dir, out_fp_prefix)
         CBS_config_d: (d) CombineBarSeq config json file path. CBS_cfg_d contains:
             out_prefix_fp: (s) Output PoolCount/Colsum/Ignore File to write to
             pool_fp: (s) Input pool file to parse
@@ -67,8 +70,8 @@ def PC_RunAll(inp_d):
     for fq_ind_d in inp_d["fq_index_list"]:
         # Every time we update the entire Multi Codes run dict
         MC_cfg_d["fastq_fp"] = fq_ind_d["fq_fp"]
-        op_prefix = os.path.dirname(MC_cfg_d["out_prefix"]) \
-                + os.path.basename(fq_ind_d["fq_fp"]).split(".")[0]
+        op_prefix = os.path.join(MC_cfg_d["output_dir"],
+                                os.path.basename(fq_ind_d["fq_fp"]).split(".")[0])
         MC_cfg_d["out_prefix"] = op_prefix
 
         logging.info("Starting to Run MultiCodes with codes destination: " + \

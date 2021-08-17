@@ -16,6 +16,15 @@ def download_fastq_and_prepare_mc(parsed_params_dict, dfu, scratch_dir,
         parsed_params_dict:
             fastq_files: list<ref>
                     ref: str 'A/B/C'
+    Returns:
+        fastq_dicts_list (list<fq_d>)
+            fq_d (dict):
+                fq_fp (str): fq_fp,
+                index_name (str): index,
+                debug (bool): False,
+                index_type: index_type,
+                index_val: index,
+                out_fp_prefix: os.path.join(outputs_dir, out_fp_prefix),
     """
     new_fastq_fps = []
 
@@ -44,7 +53,7 @@ def download_fastq_and_prepare_mc(parsed_params_dict, dfu, scratch_dir,
         fastq_file_info = dfu.shock_to_file(fastq_download_params)
 
     fastq_dicts_list = convert_fastq_fp_list_to_add_index(new_fastq_fps, 
-            outputs_dir)
+                                                          outputs_dir)
 
     return fastq_dicts_list 
 
@@ -92,6 +101,20 @@ def download_poolfile(poolfile_ref, poolfile_path, dfu, genome_ref=None):
 #Input is a list of fastq fps strings
 #outputs dir str (not in use)
 def convert_fastq_fp_list_to_add_index(new_fastq_fps, outputs_dir):
+    """
+
+    Returns:
+        fq_fp_dicts (list<fq_d>)
+            fq_d (dict):
+                fq_fp (str): fq_fp,
+                index_name (str): index,
+                debug (bool): False,
+                index_type: index_type,
+                index_val: index,
+                out_fp_prefix: os.path.join(outputs_dir, out_fp_prefix),
+    }
+                
+    """
 
 
     fq_fp_dicts = []
@@ -108,9 +131,10 @@ def get_index_val(fq_fp, outputs_dir ):
     Output needs to look like:
         fq_ind_d: (d) FASTQ INDEX DICT
             fq_fp: (str) Fastq file path
+            debug:
             [index_name] OR (str)
             [indexfile_fp] (str) FOR NOW ONLY index_name
-            debug:
+
 
             Last 3 keys not in use
     """
@@ -132,7 +156,7 @@ def get_index_val(fq_fp, outputs_dir ):
         index_type = "S"
         index = match_s[0][1:-1]
     else:
-        raise Exception("Could not recognize index: file name not in IT### or S# form: " \
+        raise Exception("Could not recognize index type: file name not in IT### or Index# or S# form: " \
                 + "{}".format(fn))
 
 

@@ -100,7 +100,7 @@ class poolcount:
         #We make the PoolCount output directory in scratch:
         outputs_dir = os.path.join(self.shared_folder, "PoolCount_Outputs")
         HTML_dir = os.path.join(self.shared_folder, "HTML_OP")
-        MC_dir = os.path.join(self.shared_folder, "MultiCodesTmp")
+        MC_dir = os.path.join(self.shared_folder, "MC_op_dir")
         for x_dir in [outputs_dir, HTML_dir, MC_dir]:
             if os.path.isdir(x_dir):
                 logging.info(f"{x_dir} contents: " + ",\n".join(
@@ -162,13 +162,14 @@ class poolcount:
                     bs_pre: CAGCGTACG,
                     bs_post: AGAGACCTC
             fastq_fp: str 
-        fq_index_list: (l) list<fq_ind_d> where
-            fq_ind_d: (d) FASTQ INDEX DICT
-                fq_fp: (str) Fastq file path
-                index: (str)
-                [index_name] OR (str)
-                [indexfile_fp] (str)
-                debug:
+        fastq_dicts_list (list<fq_d>)
+            fq_d (dict):
+                fq_fp (str): fq_fp,
+                index_name (str): index,
+                debug (bool): False,
+                index_type: index_type,
+                index_val: index,
+                out_fp_prefix: os.path.join(outputs_dir, out_fp_prefix),
         CBS_config_d: (d) CombineBarSeq config json file path. CBS_cfg_d contains:
             out_prefix_fp: (s) Output PoolCount/Colsum/Ignore File to write to
             pool_fp: (s) Input pool file to parse
@@ -180,7 +181,7 @@ class poolcount:
         # Input documented at poct.FullProgram.PC_RunAll
         FullRun_d = {
             "MC_config_d": {
-                "out_prefix": os.path.join(MC_dir,"MC_"),
+                "output_dir": MC_dir,
                 "bs3_fp": '/kb/module/lib/poolcount/barseq3.index2',
                 "maxReads": parsed_params_dict["max_Reads"],
                 "minQuality": parsed_params_dict["minQuality"],
