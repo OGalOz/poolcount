@@ -40,12 +40,13 @@ def RunCombineBarSeq(CBS_d):
    
     Description:
         Note all .codes files are barcode -> number of times it was seen.
-        It has as many rows as it has different barcodes, usually a different number
-        than the pool file.
+        It has as many rows as it has different barcodes (almost always a different number
+        than the pool file, not computed in the same way).
         We essentially create a simple dict called "counts" which maps barcodes to
         indexes and for each index how many times that barcode was found.
         Within the function ProcessAllCodeFiles we are returned the counts
         dict, which is inside the dict "cds_d".
+
 
 
     """
@@ -55,7 +56,7 @@ def RunCombineBarSeq(CBS_d):
     vrs = CheckInputs(CBS_d)
 
     # pool_d is {rcbarcode (s) => [barcode (str), scaffold (str), strand (str), pos (i)]}
-    pool_d = GetPoolDictFromPoolFile(vrs["pool_fp"])
+    pool_d, rcbc_list = GetPoolDictFromPoolFile(vrs["pool_fp"])
     vrs["pool_d"] = pool_d
 
     # PROCESSING PHASE ----------------------------
@@ -63,6 +64,7 @@ def RunCombineBarSeq(CBS_d):
 
     # PRINTING OUT PHASE
     WriteToPoolCount(pool_d, 
+                    rcbc_list,
                     cds_d["counts"], 
                     cds_d["nSamples"], 
                     vrs["out_prefix_fp"],
@@ -113,12 +115,16 @@ def WriteToColSum(out_prefix, indexes, colSums, colSumsUsed):
     
 
 
-def WriteToPoolCount(pool_d, counts, nSamples, out_prefix, indexes):
+def WriteToPoolCount(pool_d, rcbc_list,
+                    counts, nSamples, out_prefix, indexes):
 
     """
     Inputs:
         pool_d (dict)
             rcbarcode (s) => [barcode (str), scaffold (str), strand (str), pos (i)]
+        rcbc_list (list<str>): We get a list of all the rcbarcodes as they are
+                             in the pool file (dicts might lose ordering) and
+                             this way we can print them out in the same order later.
         counts (dict)
             rcbarcode to vector of counts
         nSamples (int)
@@ -136,9 +142,9 @@ def WriteToPoolCount(pool_d, counts, nSamples, out_prefix, indexes):
     PC_FH.write("\t".join(["barcode","rcbarcode", "scaffold", "strand", 
         "pos", "\t".join(indexes)]) + "\n")
 
-    sorted_keys = special_sorted_pool_keys(pool_d) 
+    #sorted_keys = special_sorted_pool_keys(pool_d) 
     
-    for rcbarcode in sorted_keys:
+    for rcbarcode in rcbc_list:
 
         barcode_list = pool_d[rcbarcode]
 
@@ -565,7 +571,9 @@ def GetPoolDictFromPoolFile(pool_fp):
     Output:
         pool_d: (d)
             rcbarcode (s) => [barcode (str), scaffold (str), strand (str), pos (i)]
-
+        rcbc_list (list<str>): We get a list of all the rcbarcodes as they are
+                             in the pool file (dicts might lose ordering) and
+                             this way we can print them out in the same order later.
     """
 
     pool_d = {} # pool dict is rcbarcode to [barcode, scaffold, strand, pos]
@@ -581,13 +589,16 @@ def GetPoolDictFromPoolFile(pool_fp):
     if not h_list[0] == "barcode":
         raise Exception("Header line incorrect in pool file " + pool_fp)
 
+    # We create this list to get the ordered rcbarcodes as they are in pool file.
+    rcbc_list = []
 
     c_line = P_FH.readline().rstrip()
     line_num = 2
 
     while c_line != "":
         
-        pool_d = CheckPoolLineAddToDict(c_line, pool_d, line_num, pool_fp)
+        pool_d, rcbarcode = CheckPoolLineAddToDict(c_line, pool_d, line_num, pool_fp)
+        rcbc_list.append(rcbarcode)
 
         c_line = P_FH.readline().rstrip()
         line_num += 1
@@ -597,7 +608,7 @@ def GetPoolDictFromPoolFile(pool_fp):
     if len(pool_d.keys()) == 0:
         raise Exception("No entries in pool file")
 
-    return pool_d
+    return pool_d, rcbc_list
 
 
 
@@ -647,7 +658,7 @@ def CheckPoolLineAddToDict(pool_line, pool_d, line_num, pool_fp):
 
     pool_d[rcbarcode] = [barcode, scaffold, strand, int(pos)]
 
-    return pool_d
+    return pool_d, rcbarcode
 
 
 

@@ -1180,11 +1180,10 @@ def FindBarcode(seq, quality, inp_d, offset=0):
 
         foundEnd: foundEnd is the distance between the end of the presequence 
         and the beginning of the postsequence if it's found. If the 
-        postsequence is nothing then foundEnd is automatically 20, 
-        if it's not nothing , then function returns 
-        [None, None].
+        postsequence is nothing  (will this ever be the case in KBase?) then 
+        foundEnd is automatically 20 
 
-    Returns:
+    Returns: [barcode, foundEnd, postseqIgnored]
         barcode (str): String of length 20, the barcode
         foundEnd (int): Difference between preseq and postseq
         postseqIgnored (bool): Whether or not we actually used postseq.
@@ -1209,15 +1208,14 @@ def FindBarcode(seq, quality, inp_d, offset=0):
                     seq2, preseq_pos)
                 #inp_d["report_dict"]["warnings"].append(warning_str)
                 logging.warning(warning_str)
-            if preseq_pos >= 0:
-                return [None, preseq_pos, True] # report that spacing was wrong
+            return [None, preseq_pos, True] # report that spacing was wrong
         return [None, None, True]
    
     
     #Note: Below line does not throw error if end index > len(seq2)
     barcode = seq2[preseq_pos + len(preseq): preseq_pos + len(preseq) + 20]
     if not (len(barcode) == 20 and re.search(r'^[A-Z]+$',barcode)):
-        # Barcode could be too short
+        # Barcode could be too short - meaning read is too short.
         #note barcodes with ambiguous sequences are ignored
         # we might want to allow one N in the future
         if inp_d['debug']:
@@ -1227,27 +1225,27 @@ def FindBarcode(seq, quality, inp_d, offset=0):
             logging.warning(warning_str)
             return [None, None, True]
     
-    postseqUsed = inp_d['postseq']
+    crnt_postseq = inp_d['postseq']
 
 
-    if len(seq2) < preseq_pos + len(preseq) + 20 + len(postseqUsed):
-        postseqUsed = postseqUsed[:4] #first 4 characters.
+    if len(seq2) < preseq_pos + len(preseq) + 20 + len(crnt_postseq):
+        crnt_postseq = crnt_postseq[:4] #first 4 characters.
         if inp_d['debug']:
-            warning_str = "Using postseq {}\n".format(postseqUsed)
+            warning_str = "Using postseq {}\n".format(crnt_postseq)
             #inp_d["report_dict"]["warnings"].append(warning_str)
             logging.warning(warning_str)
         #There might be redundant code here in MultiCodes.pl which checks
         # above length (16 lines above) Redundant code left out of this file.
-        #We check again with a shorter postseqUsed 
-        if len(seq2) < preseq_pos + len(preseq) + 20 + len(postseqUsed):
+        #We check again with a shorter crnt_postseq 
+        if len(seq2) < preseq_pos + len(preseq) + 20 + len(crnt_postseq):
             if inp_d['debug']:
                 warning_str = "Ignoring postseq, too short\n"
                 #inp_d["report_dict"]["warnings"].append(warning_str)
                 logging.warning(warning_str)
-            postseqUsed = ""
+            crnt_postseq = ""
 
     foundEnd = -1
-    if postseqUsed == "":
+    if crnt_postseq == "":
         foundEnd = 20
         postseqIgnored = True
     else:
@@ -1255,11 +1253,12 @@ def FindBarcode(seq, quality, inp_d, offset=0):
         #check 20 first in case end of barcode matches post-seq (AGAG issue)
         for off in [20,19,21,18,22]:
             start_slice = preseq_pos + len(preseq) + off
-            end_slice = start_slice + len(postseqUsed)
-            if (seq2[start_slice:end_slice] == postseqUsed):
+            end_slice = start_slice + len(crnt_postseq)
+            if (seq2[start_slice:end_slice] == crnt_postseq):
                 foundEnd = off
                 break
     if foundEnd == -1:
+        # Could not find postseq
         if inp_d['debug']:
             warning_str = "seq2 \n {} \n barcode \n{}\n postseq not found\n".format(
                 seq2, barcode)

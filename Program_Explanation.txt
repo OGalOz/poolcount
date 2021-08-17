@@ -1,5 +1,4 @@
 TD:
-    Remove "multiplexing" feature from PoolCount to simplify it.
 
 
 
@@ -7,7 +6,7 @@ The program is divided into two main scripts:
 "MultiCodes", and "Combine BarSeq". There are
 no config json files, the config d is generated
 in the impl file 'lib/poolcount/poolcountImpl.py'
-If your FASTQ files are not yet multiplexed,
+*If your FASTQ files are not yet demultiplexed,
 make sure to multiplex them, and have them named
 such that the Index is part of the name of 
 the file.
@@ -23,12 +22,28 @@ mean different things -
 "index_sequence": 6 nucleotide sequence
 "index2": 6 nucleotide sequence
 "nN" - nN is the number of Ns in the primer (i.e., the spacing between the Illumina adapter, which is before the Ns and will not be part of the read, and the barseq primer, which is downstream of the Ns)
+"primer_name": str
+"primer": Sequence for primer listed in primer_name
+
 
 "MultiCodes": At 'lib/poct/MultiCodes.RunMultiCodes'
         We get the DNA sequences 'preseq' and 'postseq',
         which are based on the protocol type. The protocol
         type also gives us the numbers nPreExpectedMin and
         nPreExpectedMax.
+        
+        How are preseq, postseq, nPreExpectedMin and nPreExpectedMax
+        used? Suppose for a read that the preseq is found to start at location
+        x within a read. If nPreExpectedMin <  x  < nPreExpected max, then we 
+        continue; otherwise, we ignore the read.
+        We look for postseq around the end of where the barcode is supposed
+        to be. If we can't find it, then we ignore the barcode. Otherwise,
+        we find it and report the length of the barcode. If the barcode
+        is length 20, then we test the quality of the reads.
+        
+
+
+
         If the FASTQ indeces were not yet multiplexed,
         make sure to make them multiplexed.
         There is a situation in which we use the index File
@@ -53,6 +68,12 @@ mean different things -
 
 "Combine BarSeq": At 'lib/poct/CombineBarSeq.RunCombineBarSeq'
 
+    We take the "codes" files from running MultiCodes and
+    make a mapping from barcode to number of times it
+    was seen per index, and note whether or not that
+    barcode is found in the poolfile. Then we write a file
+    that takes all the barcodes in the poolfile and 
+    writes out the counts per index.
 
 
 
