@@ -44,16 +44,12 @@ mean different things -
         we look for barcodes
         by finding the expected presequence and postsequence
         at certain positions.
+        The output ".codes" files have two columns:
+        barcode, and the name of the index.
+        For each barcode, there is the number
+        of times it was found in the FASTQ file.
 
-    prefix: 
-        Another thing we get is "prefix", a list of smaller 
-        index-lists, where each sublist looks like 
-        [nLeading (int), indexseq (str), name (str)].
 
-        This list is extracted from a file 
-        nLeading means 
-        indexseq is
-        name is
 
 "Combine BarSeq": At 'lib/poct/CombineBarSeq.RunCombineBarSeq'
 

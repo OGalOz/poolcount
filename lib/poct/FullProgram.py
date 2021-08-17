@@ -63,12 +63,16 @@ def PC_RunAll(inp_d):
     pre_HTML_d = {}
     MultiCodesHTML_list = []
     codes_fp_list = []
+    logging.info("Starting to Run MultiCodes.")
     for fq_ind_d in inp_d["fq_index_list"]:
         # Every time we update the entire Multi Codes run dict
         MC_cfg_d["fastq_fp"] = fq_ind_d["fq_fp"]
         op_prefix = os.path.dirname(MC_cfg_d["out_prefix"]) \
                 + os.path.basename(fq_ind_d["fq_fp"]).split(".")[0]
         MC_cfg_d["out_prefix"] = op_prefix
+
+        logging.info("Starting to Run MultiCodes with codes destination: " + \
+                     op_prefix + ".codes")
         codes_fp_list.append(op_prefix + ".codes")
         if "index_name" in fq_ind_d:
             # We remove indexfile_fp key if it formerly existed
@@ -101,6 +105,7 @@ def PC_RunAll(inp_d):
 
     CBS_d["codes_fp_l"] = codes_fp_list
 
+    logging.info("Running CombineBarSeq")
     ctg_d = RunCombineBarSeq(CBS_d)
 
 
@@ -116,11 +121,13 @@ def PC_RunAll(inp_d):
             "CombineBarSeqReport_d": ctg_d
     }
 
+    logging.info("Writing HTML.")
     HTML_str = CreateHTMLString(inp_HTML_d)
 
     with open(inp_d['HTML_op_fp'], "w") as f:
         f.write(HTML_str)
 
+    logging.info("Finished running PoolCount's RunAll")
 
     #End this part of program
     return None
