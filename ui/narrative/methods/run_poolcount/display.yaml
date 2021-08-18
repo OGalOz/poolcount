@@ -4,7 +4,7 @@
 name: RBTnSeq Reads to Pool Counts 
 
 tooltip: |
-    Supply FastQ Reads and a pool file and receive a Poolcount file
+    Count Barcodes (First step of BarSeqR). 
 
 screenshots: []
 
