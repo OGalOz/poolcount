@@ -44,49 +44,6 @@
             }
         },
         {
-        "id": "KB_PoolCount_Bool",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": ["yes"],
-            "field_type" : "dropdown",
-            "dropdown_options":{
-                "options": [{
-                    "value": "no",
-                    "display": "No"
-                },
-                {
-                    "value": "yes",
-                    "display": "Yes"
-                }
-                ]
-                   }
-        },
-                {
-            "id": "poolcount_description",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "textarea",
-            "textarea_options" : {
-                "n_rows" : 3
-
-            }
-        },
-
-        {
-            "id": "output_name",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "is_output_name": true
-            }
-        },
-        {
         "id": "protocol_type",
         "optional": false,
         "advanced": false,
@@ -172,7 +129,52 @@
             "allow_multiple": false,
             "default_values": [ "10" ],
             "field_type": "text"
+        },
+        {
+        "id": "KB_PoolCount_Bool",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": ["yes"],
+            "field_type" : "dropdown",
+            "dropdown_options":{
+                "options": [{
+                    "value": "no",
+                    "display": "No"
+                },
+                {
+                    "value": "yes",
+                    "display": "Yes"
+                }
+                ]
+                   }
+        },
+        {
+            "id": "poolcount_description",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "textarea",
+            "textarea_options" : {
+                "n_rows" : 3
+
+            }
+        },
+
+
+        {
+            "id": "output_name",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "is_output_name": true
+            }
         }
+
 
     ],
     "behavior": {

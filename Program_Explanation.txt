@@ -8,8 +8,8 @@ Inputs:
    minQuality: minimum Quality for all nucleotides within a read for the read to be used 
                 and converted to a barcode. Default set to 10. If you set minQuality to 0
                 we also don't estimate diversity nor bias (no basic statistical tests).
-                Additionally, if minQuality is set to 0, then we don't check if quality
-                scores make sense.
+                Additionally, if minQuality is set to 0, then we skip checking quality
+                scores.
    debug: Print out debugging information - doesn't change program besides more reporting.
 
 

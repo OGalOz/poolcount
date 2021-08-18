@@ -34,7 +34,7 @@ parameters :
             File type is KBaseRBTnSeq.PoolTSV
     fastq_files :
         ui-name : |
-            Fastq file (.fastq)
+            Fastq file(s) (.fastq)
         short-hint : |
             One of the reads files relating to the pool file
         long-hint : |
