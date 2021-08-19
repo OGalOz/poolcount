@@ -24,7 +24,7 @@ suggestions:
 # Configure the display and description of parameters
 #
 parameters :
-    poolfile_ref :
+    mutantpool_ref :
         ui-name : |
             Pool File
         short-hint : |
@@ -45,21 +45,21 @@ parameters :
         short-hint : |
             The Genome Object related to this work
         long-hint: |
-            The poolfile comes from a genome object, fastq reads and TnSeq model. Use the same genome object in this.
-    KB_PoolCount_Bool :
+            The mutantpool comes from a genome object, fastq reads and TnSeq model. Use the same genome object in this.
+    KB_BarcodeCount_Bool :
         ui-name : |
-            Create KBase PoolCount? 
+            Create KBase BarcodeCount? 
         short-hint : |
-            If yes, we create a poolcount object to be used downstream in KBase.
+            If yes, we create a barcodecount object to be used downstream in KBase.
         long-hint : |
-            Decide whether you want to create a KBase PoolCount Object. Defaults to Yes. 
-    poolcount_description :
+            Decide whether you want to create a KBase BarcodeCount Object. Defaults to Yes. 
+    barcodecount_description :
         ui-name : |
             Description 
         short-hint : |
-            Give a brief description of the poolcount file.
+            Give a brief description of the barcodecount file.
         long-hint : |
-            This description is saved along with the KBase PoolCount object.
+            This description is saved along with the KBase BarcodeCount object.
     protocol_type :
         ui-name : |
           Protocol Type
@@ -98,10 +98,10 @@ parameters :
         ui-name : |
             Output Set Name
         short-hint : |
-            Your output name for the set (.poolcount) file
+            Your output name for the set (.barcodecount) file
         long-hint : |
             This name must match the set name on your experiments file.
             No requirements besides no special characters or spaces. 
 description : |
     <p>Part of RBTnSeq Analysis involving conversion of </p>
-    <p>Fastq reads and pool file into poolcounts file. </p>
+    <p>Fastq reads and pool file into barcodecounts file. </p>

@@ -62,23 +62,23 @@ def convert_fastq_filename(original_fastq_fn):
     return ".".join(original_fastq_fn.split(".")[:2])
 
 
-# Gets poolfile path
-def download_poolfile(poolfile_ref, poolfile_path, dfu, genome_ref=None):
+# Gets mutantpool path
+def download_mutantpool(mutantpool_ref, mutantpool_path, dfu, genome_ref=None):
 
     GetObjectsParams = {
-            'object_refs': [poolfile_ref]
+            'object_refs': [mutantpool_ref]
             }
 
     # We get the handle id
-    PoolFileObjectData = dfu.get_objects(GetObjectsParams)['data'][0]['data']
+    mutantpoolObjectData = dfu.get_objects(GetObjectsParams)['data'][0]['data']
     logging.info("DFU Pool File Get objects results:")
-    logging.info(PoolFileObjectData)
+    logging.info(mutantpoolObjectData)
 
-    poolfile_handle = PoolFileObjectData['poolfile']
-    related_genome_ref = PoolFileObjectData['related_genome_ref']
+    mutantpool_handle = mutantpoolObjectData['mutantpool']
+    related_genome_ref = mutantpoolObjectData['related_genome_ref']
     if genome_ref is not None:
         if related_genome_ref != genome_ref:
-            raise Exception("The genome ref associated with the poolfile is "
+            raise Exception("The genome ref associated with the mutantpool is "
                             f"'{related_genome_ref}', whereas the current genome "
                             f"ref is '{genome_ref}'. The two must match.")
         else:
@@ -87,13 +87,13 @@ def download_poolfile(poolfile_ref, poolfile_path, dfu, genome_ref=None):
 
     # Set params for shock to file
     ShockToFileParams = {
-            "handle_id": poolfile_handle,
-            "file_path": poolfile_path,
+            "handle_id": mutantpool_handle,
+            "file_path": mutantpool_path,
             "unpack": "uncompress"
             }
     ShockToFileOutput = dfu.shock_to_file(ShockToFileParams)
     logging.info(ShockToFileOutput)
-    # Poolfile is at location "poolfile_path"
+    # mutantpool is at location "mutantpool_path"
 
     return None 
 

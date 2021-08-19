@@ -11,14 +11,14 @@
     },
     "parameters": [ 
         {
-            "id": "poolfile_ref",
+            "id": "mutantpool_ref",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
-                "valid_ws_types": ["KBaseRBTnSeq.RBTS_MutantPoolFile"]
+                "valid_ws_types": ["KBaseRBTnSeq.RBTS_MutantPool"]
             }
         },
         {
@@ -131,7 +131,7 @@
             "field_type": "text"
         },
         {
-        "id": "KB_PoolCount_Bool",
+        "id": "KB_BarcodeCount_Bool",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
@@ -150,7 +150,7 @@
                    }
         },
         {
-            "id": "poolcount_description",
+            "id": "barcodecount_description",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
@@ -190,8 +190,8 @@
                     "narrative_system_variable": "workspace_id",
                     "target_property": "workspace_id"
                 },{
-                    "input_parameter": "poolfile_ref",
-                    "target_property": "poolfile_ref",
+                    "input_parameter": "mutantpool_ref",
+                    "target_property": "mutantpool_ref",
                     "target_type_transform": "resolved-ref"
 
                 },{
@@ -203,11 +203,11 @@
                     "target_property": "genome_ref",
                     "target_type_transform": "resolved-ref"
                 },{
-                    "input_parameter": "KB_PoolCount_Bool",
-                    "target_property": "KB_PoolCount_Bool"
+                    "input_parameter": "KB_BarcodeCount_Bool",
+                    "target_property": "KB_BarcodeCount_Bool"
                 },{
-                    "input_parameter": "poolcount_description",
-                    "target_property": "poolcount_description"
+                    "input_parameter": "barcodecount_description",
+                    "target_property": "barcodecount_description"
                 }, {
                     "input_parameter": "protocol_type",
                     "target_property": "protocol_type"
