@@ -103,7 +103,7 @@ class poolcountTest(unittest.TestCase):
         ret = self.serviceImpl.run_poolcount(self.ctx, 
                 {
                 'workspace_name': self.wsName,
-                "poolfile_ref": pool_ref,
+                "mutantpool_ref": pool_ref,
                 "fastq_files": fastq_refs,
                 "genes_table_ref": genes_table_ref, 
                 "KB_PoolCount_Bool": "yes",
@@ -147,7 +147,7 @@ class poolcountTest(unittest.TestCase):
         ret = self.serviceImpl.run_poolcount(self.ctx, 
                 {
                 'workspace_name': self.wsName,
-                "poolfile_ref": pool_ref,
+                "mutantpool_ref": pool_ref,
                 "fastq_files": fastq_refs,
                 "genome_ref": genome_ref, 
                 "KB_PoolCount_Bool": "yes",

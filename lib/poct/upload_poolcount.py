@@ -13,6 +13,7 @@ def upload_poolcount_to_KBase(up):
 
         username (str),
         genes_table_ref (str),
+        mutantpool_ref (str),
         fastq_refs (list),
         poolcount_description (str),
         protocol_type (str)
@@ -58,6 +59,7 @@ def upload_poolcount_to_KBase(up):
         "fastqs_used": up["fastq_refs"],
         "fastqs_used_str": "NA - use fastqs_used",
         "file_name": res_handle["file_name"],
+        "mutantpool_ref": up["mutantpool_ref"],
         "utc_created": str(date_time),
         "set_name": up["set_name"],
         "num_lines": str(num_lines),

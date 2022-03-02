@@ -159,6 +159,7 @@ class poolcount:
                     'username': parsed_params_dict['username'],
                     'fastq_refs': parsed_params_dict['fastq_files'],
                     'genome_ref': parsed_params_dict['genome_ref'],
+                    'mutantpool_ref': parsed_params_dict['mutantpool_ref'],
                     'poolcount_description': parsed_params_dict[
                         'poolcount_description'] ,
                     'workspace_id': ws_id,

@@ -1,248 +1,290 @@
 {
-    "ver": "0.0.1",
-    "authors": [
-        "omreegaloz"
-    ],
-    "contact": "help@kbase.us",
-    "categories": ["active"],
-    "widgets": {
-        "input": null,
-        "output": null
+  "ver": "0.0.1",
+  "authors": [
+    "omreegaloz"
+  ],
+  "contact": "help@kbase.us",
+  "categories": [
+    "active"
+  ],
+  "widgets": {
+    "input": null,
+    "output": "no-display"
+  },
+  "parameters": [
+    {
+      "id": "mutantpool_ref",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [
+        ""
+      ],
+      "field_type": "text",
+      "text_options": {
+        "valid_ws_types": [
+          "KBaseRBTnSeq.RBTS_MutantPool"
+        ]
+      }
     },
-    "parameters": [ 
-        {
-            "id": "mutantpool_ref",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "valid_ws_types": ["KBaseRBTnSeq.RBTS_MutantPool"]
-            }
-        },
-        {
-            "id": "fastq_files",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": true,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "valid_ws_types": ["KBaseFile.SingleEndLibrary" ]
-        }
-        },
-        {
-            "id": "genome_ref",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "valid_ws_types": ["KBaseRBTnSeq.RBTS_InputGenesTable"]
-            }
-        },
-        {
-        "id": "protocol_type",
-        "optional": false,
-        "advanced": false,
-        "allow_multiple": false,
-        "default_values": [""],
-        "field_type": "dropdown",
-        "dropdown_options":{
-                "options": [
-                {
-                    "value": "bs3",
-                    "display": "bs3"
-                },
-                {
-                    "value": "n25",
-                    "display": "n25 (bs2)"
-                },
-                {
-                    "value": "dntag",
-                    "display": "dntag"
-                },
-                {
-                    "value": "base",
-                    "display": "base"
-                }
-               ]
-            }
-        },
-        {
-            "id": "doOff1",
-            "optional": false,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ true ],
-            "field_type" : "dropdown",
-            "dropdown_options":{
-                "options": [{
-                    "value": false,
-                    "display": "False"
-                },
-                {
-                    "value": true,
-                    "display": "True"
-                }
-                ]}
-
-        },
-        {
-            "id": "debug",
-            "optional": false,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ false ],
-            "field_type" : "dropdown",
-            "dropdown_options":{
-                "options": [{
-                    "value": false,
-                    "display": "False"
-                },
-                {
-                    "value": true,
-                    "display": "True"
-                }
-                ]}
-
-        },
-        {
-        "id": "maxReads",
-            "optional": false,
-            "text_options" : {
-                "validate_as" : "int"
-            },
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ "-1" ],
-            "field_type": "text"
-        },{
-        "id": "minQuality",
-            "optional": true,
-            "text_options" : {
-                "validate_as" : "int"
-            },
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ "10" ],
-            "field_type": "text"
-        },
-        {
-        "id": "KB_BarcodeCount_Bool",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": ["yes"],
-            "field_type" : "dropdown",
-            "dropdown_options":{
-                "options": [{
-                    "value": "no",
-                    "display": "No"
-                },
-                {
-                    "value": "yes",
-                    "display": "Yes"
-                }
-                ]
-                   }
-        },
-        {
-            "id": "barcodecount_description",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "textarea",
-            "textarea_options" : {
-                "n_rows" : 3
-
-            }
-        },
-
-
-        {
-            "id": "output_name",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "is_output_name": true
-            }
-        }
-
-
-    ],
-    "behavior": {
-        "service-mapping": {
-            "url": "",
-            "name": "poolcount",
-            "method": "run_poolcount",
-            "input_mapping": [
-                {
-                    "narrative_system_variable": "workspace",
-                    "target_property": "workspace_name"
-                },{
-                    "narrative_system_variable": "workspace_id",
-                    "target_property": "workspace_id"
-                },{
-                    "input_parameter": "mutantpool_ref",
-                    "target_property": "mutantpool_ref",
-                    "target_type_transform": "resolved-ref"
-
-                },{
-                    "input_parameter": "fastq_files",
-                    "target_property": "fastq_files",
-                    "target_type_transform": "resolved-ref"
-                },{
-                    "input_parameter": "genome_ref",
-                    "target_property": "genome_ref",
-                    "target_type_transform": "resolved-ref"
-                },{
-                    "input_parameter": "KB_BarcodeCount_Bool",
-                    "target_property": "KB_BarcodeCount_Bool"
-                },{
-                    "input_parameter": "barcodecount_description",
-                    "target_property": "barcodecount_description"
-                }, {
-                    "input_parameter": "protocol_type",
-                    "target_property": "protocol_type"
-                }, {
-                    "input_parameter": "doOff1",
-                    "target_property": "doOff1"
-                },
-                {
-                    "input_parameter": "minQuality",
-                    "target_property": "minQuality"
-                },
-                {
-                    "input_parameter": "debug",
-                    "target_property": "debug"
-                },
-                {
-                    "input_parameter": "maxReads",
-                    "target_property": "maxReads"
-                },
-                {
-                    "input_parameter": "output_name",
-                    "target_property": "output_name"
-                }
-                
-            ],
-            "output_mapping": [
-                {
-                    "service_method_output_path": [0,"report_name"],
-                    "target_property": "report_name"
-                },{
-                    "service_method_output_path": [0,"report_ref"],
-                    "target_property": "report_ref"
-                }
-            ]
-        }
+    {
+      "id": "fastq_files",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": true,
+      "default_values": [
+        ""
+      ],
+      "field_type": "text",
+      "text_options": {
+        "valid_ws_types": [
+          "KBaseFile.SingleEndLibrary"
+        ]
+      }
     },
-    "job_id_output_field": "docker"
+    {
+      "id": "genome_ref",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [
+        ""
+      ],
+      "field_type": "text",
+      "text_options": {
+        "valid_ws_types": [
+          "KBaseRBTnSeq.RBTS_InputGenesTable"
+        ]
+      }
+    },
+    {
+      "id": "protocol_type",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [
+        ""
+      ],
+      "field_type": "dropdown",
+      "dropdown_options": {
+        "options": [
+          {
+            "value": "bs3",
+            "display": "bs3"
+          },
+          {
+            "value": "n25",
+            "display": "n25 (bs2)"
+          },
+          {
+            "value": "dntag",
+            "display": "dntag"
+          },
+          {
+            "value": "base",
+            "display": "base"
+          }
+        ]
+      }
+    },
+    {
+      "id": "doOff1",
+      "optional": false,
+      "advanced": true,
+      "allow_multiple": false,
+      "default_values": [
+        true
+      ],
+      "field_type": "dropdown",
+      "dropdown_options": {
+        "options": [
+          {
+            "value": false,
+            "display": "False"
+          },
+          {
+            "value": true,
+            "display": "True"
+          }
+        ]
+      }
+    },
+    {
+      "id": "debug",
+      "optional": false,
+      "advanced": true,
+      "allow_multiple": false,
+      "default_values": [
+        false
+      ],
+      "field_type": "dropdown",
+      "dropdown_options": {
+        "options": [
+          {
+            "value": false,
+            "display": "False"
+          },
+          {
+            "value": true,
+            "display": "True"
+          }
+        ]
+      }
+    },
+    {
+      "id": "maxReads",
+      "optional": false,
+      "text_options": {
+        "validate_as": "int"
+      },
+      "advanced": true,
+      "allow_multiple": false,
+      "default_values": [
+        "-1"
+      ],
+      "field_type": "text"
+    },
+    {
+      "id": "minQuality",
+      "optional": true,
+      "text_options": {
+        "validate_as": "int"
+      },
+      "advanced": true,
+      "allow_multiple": false,
+      "default_values": [
+        "10"
+      ],
+      "field_type": "text"
+    },
+    {
+      "id": "KB_BarcodeCount_Bool",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [
+        "yes"
+      ],
+      "field_type": "dropdown",
+      "dropdown_options": {
+        "options": [
+          {
+            "value": "no",
+            "display": "No"
+          },
+          {
+            "value": "yes",
+            "display": "Yes"
+          }
+        ]
+      }
+    },
+    {
+      "id": "barcodecount_description",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [
+        ""
+      ],
+      "field_type": "textarea",
+      "textarea_options": {
+        "n_rows": 3
+      }
+    },
+    {
+      "id": "output_name",
+      "optional": false,
+      "advanced": false,
+      "allow_multiple": false,
+      "default_values": [
+        ""
+      ],
+      "field_type": "text",
+      "text_options": {
+        "is_output_name": true
+      }
+    }
+  ],
+  "behavior": {
+    "service-mapping": {
+      "url": "",
+      "name": "poolcount",
+      "method": "run_poolcount",
+      "input_mapping": [
+        {
+          "narrative_system_variable": "workspace",
+          "target_property": "workspace_name"
+        },
+        {
+          "narrative_system_variable": "workspace_id",
+          "target_property": "workspace_id"
+        },
+        {
+          "input_parameter": "mutantpool_ref",
+          "target_property": "mutantpool_ref",
+          "target_type_transform": "resolved-ref"
+        },
+        {
+          "input_parameter": "fastq_files",
+          "target_property": "fastq_files",
+          "target_type_transform": "resolved-ref"
+        },
+        {
+          "input_parameter": "genome_ref",
+          "target_property": "genome_ref",
+          "target_type_transform": "resolved-ref"
+        },
+        {
+          "input_parameter": "KB_BarcodeCount_Bool",
+          "target_property": "KB_BarcodeCount_Bool"
+        },
+        {
+          "input_parameter": "barcodecount_description",
+          "target_property": "barcodecount_description"
+        },
+        {
+          "input_parameter": "protocol_type",
+          "target_property": "protocol_type"
+        },
+        {
+          "input_parameter": "doOff1",
+          "target_property": "doOff1"
+        },
+        {
+          "input_parameter": "minQuality",
+          "target_property": "minQuality"
+        },
+        {
+          "input_parameter": "debug",
+          "target_property": "debug"
+        },
+        {
+          "input_parameter": "maxReads",
+          "target_property": "maxReads"
+        },
+        {
+          "input_parameter": "output_name",
+          "target_property": "output_name"
+        }
+      ],
+      "output_mapping": [
+        {
+          "service_method_output_path": [
+            0,
+            "report_name"
+          ],
+          "target_property": "report_name"
+        },
+        {
+          "service_method_output_path": [
+            0,
+            "report_ref"
+          ],
+          "target_property": "report_ref"
+        }
+      ]
+    }
+  },
+  "job_id_output_field": "docker"
 }

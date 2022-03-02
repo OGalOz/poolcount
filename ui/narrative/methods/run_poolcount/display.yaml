@@ -8,7 +8,7 @@ tooltip: |
 
 screenshots: []
 
-icon: rbtnseq_poolcount_new.png
+icon: rbtnseq_barcode_count.png
 
 #
 # define a set of similar apps that might be useful to the user
@@ -26,12 +26,12 @@ suggestions:
 parameters :
     mutantpool_ref :
         ui-name : |
-            Pool File
+            Mutant Pool 
         short-hint : |
-            The pool file related to these reads KBaseRBTnSeq.PoolTSV 
+            The mutantpool related to these reads KBaseRBTnSeq.RBTS_MutantPool 
         long-hint  : |
-            The pool file related to these reads may be the output from the MapTnSeq app.
-            File type is KBaseRBTnSeq.PoolTSV
+            The mutantpool related to these reads may be the output from the MapTnSeq app.
+            File type is KBaseRBTnSeq.RBTS_MutantPool
     fastq_files :
         ui-name : |
             Fastq file(s) (.fastq)
